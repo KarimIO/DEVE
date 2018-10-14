@@ -1,0 +1,329 @@
+$color-back: hsl(210, 10%, 95%);
+$color-front: hsl(210, 10%, 98%);
+$color-border: hsl(210, 10%, 88%);
+$color-back-darker: darken($color-back, 5%);
+
+$primary-color: #649e18;
+$primary-color-fade: rgba($primary-color, .1);
+$primary-color-dark: darken($primary-color, 5%);
+$primary-color-darker: darken($primary-color, 10%);
+$faded-text: hsl(210, 10%, 60%);
+$ui-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+$shadow-clean: 0 1px 3px rgba(0,0,0,0.12), 0 2px 8px rgba($primary-color,0.3);
+$shadow-clean-hover: 0 1px 3px rgba(0,0,0,0.12), 0 2px 32px rgba($primary-color,0.8);
+$shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+$shadow-hover: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+
+$transition-all: 0.4s all cubic-bezier(.25,.8,.25,1);
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    font-family: $ui-font;
+}
+
+body {
+    font-size: 0;
+}
+
+main, aside {
+    vertical-align: top;
+    display: inline-block;
+    height: 100vh;
+}
+
+main {
+    width: calc(100vw - 241px);
+    background: $color-back;
+}
+
+nav {
+    background: $color-back-darker;
+    height: 4.4rem;
+    overflow: hidden;
+    border-right: 1px solid $color-border;
+    text-align: right;
+
+    span {
+        position: relative;
+        color: $faded-text;
+        display: inline-block;
+        padding: 1.5rem;
+        height: 4.4rem;
+        box-sizing: border-box;
+        transition: $transition-all;
+        cursor: pointer;
+        font-size: 1rem;
+
+        .notification {
+            margin-left: 1rem;
+            transition: $transition-all;
+        }
+
+        &::before {
+            content: "";
+            position: absolute;
+            right: 1.5rem;
+            left: 1.5rem;
+            height: 0.3rem;
+            bottom: -0.3rem;
+            border-radius: 0.3rem 0.3rem 0 0;
+            background: $primary-color;
+            transition: $transition-all;
+        }
+        
+        &:hover, &.selected {
+            background: $primary-color-fade;
+            color: $primary-color;
+
+            &::before {
+                bottom: 0;
+            }
+            
+            .notification {
+                background: $primary-color;
+            }
+        }
+    }
+}
+
+.notification {
+    display: inline-block;
+    background: rgba($primary-color, .5);
+    color: white;
+    width:  1.3rem;
+    height: 1.3rem;
+    font-size: 0.9rem;
+    text-align: center;
+    justify-content: center;
+    border-radius: 50px;
+    box-sizing: border-box;
+}
+
+.main-section {
+    width: 100%;
+    height: calc(100% - 4.4rem);
+    padding: 5%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 128px;
+        height: 128px;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: $transition-all;
+        background-image: url(/img/loading.svg);
+        background-size: cover;
+        pointer-events: none;
+    }
+
+    &.loading::before {
+        opacity: 1;
+    }
+
+    > * {
+        transition: $transition-all;
+        opacity: 1;
+    }
+
+    &.loading > * {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+h1, h2, h3, h4 {
+    text-align: center;
+    font-weight: normal;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    width: fit-content;
+    border-bottom: 2px solid $primary-color;
+    font-size: 2rem;
+    color: $primary-color;
+    font-family: $ui-font;
+}
+
+aside {
+    width: 240px;
+    background: $color-front;
+    overflow: hidden;
+    border-right: 1px solid $color-border;
+
+    .logo {
+        background: url(/img/logo.png);
+        background-position: center;
+        background-size: 40%;
+        background-repeat: no-repeat;
+        width: 100%;
+        height: 4.4rem;
+        vertical-align: top;
+        border-bottom: 1px solid $color-border;
+    }
+
+    .friends-container {
+        margin: 2rem 0;
+
+        > div {
+            cursor: pointer;
+            position: relative;
+            display: block;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.0rem;
+            color: rgb(146, 148, 151);
+            text-decoration: none;
+            font-family: $ui-font;
+            transition: 0.4s all ease;
+            font-size: 1rem;
+
+            &::before {
+                content: "";
+                position: absolute;
+                right: -0.3rem;
+                width: 0.3rem;
+                height: 1.6rem;
+                top: 0.9rem;
+                border-radius: 0.3rem 0 0  0.3rem;
+                background: $primary-color;
+                transition: $transition-all;
+            }
+            
+            &:hover, &.selected {
+                color: $primary-color;
+                background: $primary-color-fade;
+
+                &::before {
+                    right: 0;
+                }
+            }
+        }
+    }
+}
+
+.gallery {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+
+    > div {
+        position: relative;
+        padding-bottom: 100%;
+        background-color: $color-front;
+        background-position: center;
+        background-size: cover;
+        border-radius: 4px;
+        box-shadow: $shadow;
+        transition: $transition-all;
+        overflow: hidden;
+
+        > div {
+            position: absolute;
+            top: -100%;
+            height: 100%;
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            transition: $transition-all;
+
+            > span {
+                display: inline-block;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 1rem;
+                color: white;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.24);
+                text-align: center;
+
+                button {
+                    display: block;
+                    font-size: 0.7rem;
+                    padding: 0.5rem;
+                    margin: 0.8rem;
+                    box-shadow: none;
+                    white-space: nowrap;
+                }
+            }
+        }
+
+        &:hover {
+            box-shadow: $shadow-hover;
+
+            > div {
+                top: 0;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1500px) {
+    .gallery {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .gallery {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media screen and (max-width: 750px) {
+    .gallery {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+table {
+    width: 100%;
+    font-size: 1rem;
+    text-align: center;
+
+    td {
+        font-size: 1rem;
+    }
+
+    thead {
+        th:first-child {
+            width: 6rem;
+        }
+    }
+
+    tbody {
+        td:first-child {
+            width:  6rem;
+            height: 6rem;
+            border-radius: 8px;
+            background: red;
+            display: inline-block;
+        }
+    }
+}
+
+button {
+    border: none;
+    background: $primary-color;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    box-shadow: $shadow-clean;
+    transition: $transition-all;
+    text-shadow: 0 1px 1px $primary-color-dark;
+    cursor: pointer;
+
+    &:hover {
+        box-shadow: $shadow-clean-hover;
+        background: $primary-color-dark;
+    }
+}
