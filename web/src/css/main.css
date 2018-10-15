@@ -26,7 +26,11 @@ nav {
   height: 4.4rem;
   overflow: hidden;
   border-right: 1px solid #dde0e3;
-  text-align: right;
+  text-align: left;
+}
+
+nav .signout-btn {
+  float: right;
 }
 
 nav span {
@@ -40,7 +44,7 @@ nav span {
   -webkit-transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
   transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.8rem;
 }
 
 nav span .notification {
@@ -99,6 +103,18 @@ nav span:hover .notification, nav span.selected .notification {
           box-sizing: border-box;
   overflow-y: auto;
   position: relative;
+}
+
+.main-section:not(.loading).empty::after {
+  content: "No Content Found";
+  color: #bbb;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  font-size: 2rem;
+  text-align: center;
 }
 
 .main-section::before {
@@ -165,11 +181,13 @@ aside .logo {
   border-bottom: 1px solid #dde0e3;
 }
 
-aside .friends-container {
-  margin: 2rem 0;
+aside .user-container {
+  padding: 2rem 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-aside .friends-container > div {
+aside .user-container > div {
   cursor: pointer;
   position: relative;
   display: block;
@@ -183,7 +201,7 @@ aside .friends-container > div {
   font-size: 1rem;
 }
 
-aside .friends-container > div::before {
+aside .user-container > div::before {
   content: "";
   position: absolute;
   right: -0.3rem;
@@ -196,12 +214,12 @@ aside .friends-container > div::before {
   transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-aside .friends-container > div:hover, aside .friends-container > div.selected {
+aside .user-container > div:hover, aside .user-container > div.selected {
   color: #649e18;
   background: rgba(100, 158, 24, 0.1);
 }
 
-aside .friends-container > div:hover::before, aside .friends-container > div.selected::before {
+aside .user-container > div:hover::before, aside .user-container > div.selected::before {
   right: 0;
 }
 
@@ -332,5 +350,290 @@ button:hover {
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 2px 32px rgba(100, 158, 24, 0.8);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 2px 32px rgba(100, 158, 24, 0.8);
   background: #568815;
+}
+
+.credentials {
+  position: fixed;
+  background: #f1f2f4;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 99;
+  -webkit-transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.credentials.hide {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.credentials h1 {
+  color: #666;
+  border: none;
+  text-align: left;
+}
+
+.credentials h1 > span {
+  letter-spacing: 0.5;
+  color: #333;
+  font-weight: bold;
+  letter-spacing: -3px;
+}
+
+.credentials h1 > span > span {
+  color: #649e18;
+}
+
+.credentials .side {
+  display: inline-block;
+  background: url(/img/5.jpg);
+  background-position: center;
+  background-size: cover;
+  width: 40vw;
+  height: 100vh;
+  vertical-align: top;
+  opacity: 0.8;
+}
+
+.credentials .main {
+  position: relative;
+  display: inline-block;
+  width: 60vw;
+  height: 100vh;
+  vertical-align: top;
+}
+
+.credentials .credentials-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20rem;
+  max-width: 90%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  -webkit-transition: 0.8s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: 0.8s all cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.credentials .credentials-container:first-child.hide {
+  top: -50%;
+}
+
+.credentials .credentials-container:nth-child(2).hide {
+  top: 150%;
+}
+
+.credentials .tagline {
+  color: #999;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.credentials .tagline span {
+  cursor: pointer;
+  color: #649e18;
+  font-weight: bold;
+}
+
+.credentials .tagline span:hover {
+  color: #568815;
+}
+
+/* ========= Controls ========= */
+.input-group {
+  position: relative;
+}
+
+.input-group input {
+  background: none;
+  width: 100%;
+  border: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 0.5rem;
+  padding-top: 1.5rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  border-bottom: 2px solid #dde0e3;
+  margin: 0.2rem 0;
+  font-size: 1rem;
+  -webkit-transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.input-group input::-webkit-input-placeholder {
+  -webkit-transition: inherit;
+  transition: inherit;
+  opacity: 0;
+  /* Firefox */
+}
+
+.input-group input:-ms-input-placeholder {
+  -webkit-transition: inherit;
+  transition: inherit;
+  opacity: 0;
+  /* Firefox */
+}
+
+.input-group input::-ms-input-placeholder {
+  -webkit-transition: inherit;
+  transition: inherit;
+  opacity: 0;
+  /* Firefox */
+}
+
+.input-group input::placeholder {
+  -webkit-transition: inherit;
+  transition: inherit;
+  opacity: 0;
+  /* Firefox */
+}
+
+.input-group input:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  -webkit-transition: inherit;
+  transition: inherit;
+  opacity: 0;
+}
+
+.input-group input::-ms-input-placeholder {
+  /* Microsoft Edge */
+  -webkit-transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: 0;
+}
+
+.input-group input:focus {
+  border-color: #649e18;
+}
+
+.input-group input:focus::-webkit-input-placeholder {
+  opacity: 0.3;
+  /* Firefox */
+}
+
+.input-group input:focus:-ms-input-placeholder {
+  opacity: 0.3;
+  /* Firefox */
+}
+
+.input-group input:focus::-ms-input-placeholder {
+  opacity: 0.3;
+  /* Firefox */
+}
+
+.input-group input:focus::placeholder {
+  opacity: 0.3;
+  /* Firefox */
+}
+
+.input-group input:focus:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  opacity: 0.3;
+}
+
+.input-group input:focus::-ms-input-placeholder {
+  /* Microsoft Edge */
+  opacity: 0.3;
+}
+
+.input-group input + label {
+  position: absolute;
+  left: 0.5rem;
+  top: 1.5rem;
+  font-size: 1rem;
+  opacity: 0.8;
+  -webkit-transform-origin: left bottom;
+          transform-origin: left bottom;
+  -webkit-transform: translate(0, 0) scale(1);
+          transform: translate(0, 0) scale(1);
+  -webkit-transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  pointer-events: none;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.input-group input:not(:placeholder-shown) + label, .input-group input:focus + label {
+  -webkit-transform: translate(0, -1.1rem) scale(0.8);
+          transform: translate(0, -1.1rem) scale(0.8);
+}
+
+.input-group input:focus + label {
+  color: #649e18;
+}
+
+.password input {
+  padding-right: 3rem;
+}
+
+.password .eye {
+  opacity: 0.6;
+  width: 2rem;
+  height: 2rem;
+  background-image: url(/img/icons/eye-off.svg);
+  background-size: 80%;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  position: absolute;
+  bottom: 1rem;
+  right: 0.5rem;
+  -webkit-transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.password .eye.hide {
+  background-image: url(/img/icons/eye.svg);
+}
+
+.password .eye:hover {
+  opacity: 0.8;
+}
+
+fieldset {
+  padding: 0;
+  border: 0;
+}
+
+button, input[type=submit] {
+  background: #649e18;
+  /* fallback for old browsers */
+  -webkit-transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 4px;
+  border: 0;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.7rem;
+  border-bottom: 3px solid #568815;
+}
+
+button:not(:disabled):hover, input[type=submit]:not(:disabled):hover {
+  background: #568815;
+  border-bottom-color: #487211;
+  color: #ccc;
+}
+
+button:disabled, input[type=submit]:disabled {
+  cursor: default;
+  border-bottom-color: #999;
+  background: #aaa;
+  color: #ddd;
+}
+
+@media screen and (max-width: 700px) {
+  .credentials .side {
+    width: 0;
+  }
+  .credentials .main {
+    width: 100%;
+  }
 }
 /*# sourceMappingURL=main.css.map */
