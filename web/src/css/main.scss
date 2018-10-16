@@ -64,8 +64,14 @@ nav {
         cursor: pointer;
         font-size: 0.8rem;
 
+        &.request-tab {
+            padding-right: 3rem;
+        }
+
         .notification {
-            margin-left: 1rem;
+            position: absolute;
+            right: 1.2rem;
+            top: 1.4rem;
             transition: $transition-all;
         }
 
@@ -164,9 +170,8 @@ h1, h2, h3, h4 {
     padding: 0.5rem;
     margin: 0.5rem 0;
     width: fit-content;
-    border-bottom: 2px solid $primary-color;
     font-size: 2rem;
-    color: $primary-color;
+    color: #666;
     font-family: $ui-font;
 }
 
@@ -228,10 +233,25 @@ aside {
     }
 }
 
+.badge {
+    display: block;
+    margin: auto;
+    width: max-content;
+    font-size: 0.8rem;
+    background: #333;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 100px;
+}
+
 .gallery {
     display: grid;
     grid-gap: 1rem;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    
+    b, i {
+        display: block;
+    }
 
     > div {
         position: relative;
@@ -267,7 +287,7 @@ aside {
                     display: block;
                     font-size: 0.7rem;
                     padding: 0.5rem;
-                    margin: 0.8rem;
+                    margin: 0.8rem 0;
                     box-shadow: none;
                     white-space: nowrap;
                 }
@@ -363,7 +383,6 @@ button {
     }
 
     h1 {
-        color: #666;
         border: none;
         text-align: left;
 

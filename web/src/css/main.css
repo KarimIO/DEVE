@@ -47,8 +47,14 @@ nav span {
   font-size: 0.8rem;
 }
 
+nav span.request-tab {
+  padding-right: 3rem;
+}
+
 nav span .notification {
-  margin-left: 1rem;
+  position: absolute;
+  right: 1.2rem;
+  top: 1.4rem;
   -webkit-transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
   transition: 0.4s all cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -157,9 +163,8 @@ h1, h2, h3, h4 {
   width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
-  border-bottom: 2px solid #649e18;
   font-size: 2rem;
-  color: #649e18;
+  color: #666;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -223,12 +228,29 @@ aside .user-container > div:hover::before, aside .user-container > div.selected:
   right: 0;
 }
 
+.badge {
+  display: block;
+  margin: auto;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  font-size: 0.8rem;
+  background: #333;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 100px;
+}
+
 .gallery {
   display: -ms-grid;
   display: grid;
   grid-gap: 1rem;
   -ms-grid-columns: 1fr 1fr 1fr 1fr 1fr;
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+
+.gallery b, .gallery i {
+  display: block;
 }
 
 .gallery > div {
@@ -272,7 +294,7 @@ aside .user-container > div:hover::before, aside .user-container > div.selected:
   display: block;
   font-size: 0.7rem;
   padding: 0.5rem;
-  margin: 0.8rem;
+  margin: 0.8rem 0;
   -webkit-box-shadow: none;
           box-shadow: none;
   white-space: nowrap;
@@ -370,7 +392,6 @@ button:hover {
 }
 
 .credentials h1 {
-  color: #666;
   border: none;
   text-align: left;
 }

@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 
 export class Input extends Component {
     render() {
-      return (
+        let ch = this.props.onChange;
+        return (
         <div className="input-group">
-            <input type={this.props.type} placeholder={this.props.placeholder} />
+            <input type={this.props.type} placeholder={this.props.placeholder} onChange={ch ? ch : null} />
             <label>{this.props.label}</label>
         </div>);
     }

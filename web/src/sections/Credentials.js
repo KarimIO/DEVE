@@ -8,6 +8,17 @@ export default class Credentials extends Component {
 		this.state = {display: true, r_username: "", r_fullname: "", r_password: "", s_username: "", s_password: "", show_register: false, processing: false};
 	}
 
+	componentWillMount() {
+		// If session exists...
+		// Login
+		/*this.props.setUserInfo({
+			username: this.state.r_username,
+			password: this.state.r_password
+		});
+
+		this.hide();*/
+	}
+
 	handleSignUpUsername = (event) => {
 		this.setState({r_username: event.target.value});
 	}
@@ -38,21 +49,30 @@ export default class Credentials extends Component {
 
 	handleSignIn = (e) => {
 		e.preventDefault();
-		let username = this.state.s_username;
-		let password = this.state.s_password;
 		this.setState({processing: true});
 
-		setTimeout(this.hide, 700);
+		setTimeout(() => {
+			this.props.setUserInfo({
+				username: this.state.s_username,
+				name: this.state.s_username
+			});
+			
+			this.hide();
+		}, 700);
 	}
 
 	handleSignUp = (e) => {
 		e.preventDefault();
-		let fullname = this.state.r_fullname;
-		let username = this.state.r_username;
-		let password = this.state.r_password;
 		this.setState({processing: true});
 
-		setTimeout(this.hide, 700);
+		setTimeout(() => {
+			this.props.setUserInfo({
+				username: this.state.r_username,
+				name: this.state.r_fullname
+			});
+
+			this.hide();
+		}, 700);
 	}
 	
 	logOut = () => {

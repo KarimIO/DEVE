@@ -17,6 +17,7 @@ export default class FriendsBar extends Component {
 			<aside>
                 <div className="logo"></div>
                 <div className={`main-section user-container${this.props.loading ? " loading" : ""}${empty ? " empty":""}`}>
+                    <span className="badge">Welcome, {this.props.name}</span>
                     {this.getList()}
                 </div>
             </aside>
