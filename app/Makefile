@@ -29,7 +29,7 @@ $(EXEC): $(OBJECTS)
 	$(CXX) $(LIBS) $(LINKER_FLAGS) -o $@ $^
 
 simple:
-	$(CXX) src/main.cpp -Ilibinclude $(LIBS) -o $(EXEC)
+	$(CXX) src/main.cpp src/deve_ui_server.cpp src/deve_peer.cpp -Iinclude -Ilibinclude $(LIBS) -o $(EXEC)
 
 .PHONY: clean
 

@@ -1,21 +1,28 @@
+#include <iostream>
+#include <exception>
+
+#include <deve_peer.h>
+
 #include <pistache/endpoint.h>
-#include <JSON.h>
 
 using namespace Pistache;
-using namespace nlohmann;
 
+int main(int argc, char *argv[]) {
+    try {
+        Port port(9080);
 
-struct HelloHandler : public Http::Handler {
-    HTTP_PROTOTYPE(HelloHandler)
+        int thr = 2;
 
-    void onRequest(const Http::Request& request, Http::ResponseWriter writer) {    
-        json j;
-        j["test"] = "Wow";
+        if (argc >= 2) {
+            port = std::stol(argv[1]);
+        }
 
-        writer.send(Http::Code::Ok, j.dump());
+        Address addr(Ipv4::any(), port);
+        
+        DevePeer peer;
+        peer.setUpUIServer(addr);
+        peer.start();
+    } catch(std::runtime_error &e) {
+        std::cerr << e.what() << "\n";
     }
-};
-
-int main() {
-    Http::listenAndServe<HelloHandler>("*:9080");
 }
