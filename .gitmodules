@@ -1,3 +1,6 @@
 [submodule "submodules/rrad"]
 	path = submodules/rrad
 	url = https://github.com/donn/RRAD
+[submodule "submodules/pistache"]
+	path = submodules/pistache
+	url = https://github.com/oktal/pistache
