@@ -6,8 +6,10 @@ EXEC = deve-app
 SRC_DIR = src
 BUILD_DIR = build
 
-LIB_HEADERS = $(shell find libinclude -name "*.h")
-PRECOMPILED_HEADERS = $(addprefix build/, $(patsubst %,%.pch,$(LIB_HEADERS)))
+LIB_INCLUDE_DIR = libinclude
+INCLUDE_DIR = include
+SUBMODULE_INCLUDE_DIRS = $(shell find ../submodules -name include)
+SUBMODULE_INCLUDES = $(addprefix -I, $(SUBMODULE_INCLUDE_DIRS))
 
 HEADERS = $(shell find include -name "*.h") $(LIB_HEADERS)
 SOURCES = $(shell find src -name "*.cpp")
@@ -23,8 +25,8 @@ release: $(EXEC)
 
 $(OBJECTS): build/%.o : %.cpp $(HEADERS)
 	mkdir -p $(@D)
-	$(CXX) $< $(LIBS) $(CXX_FLAGS) -o $@
-#-Iinclude -Ilibinclude 
+	$(CXX) $< -I$(INCLUDE_DIR) -I$(LIB_INCLUDE_DIR) $(SUBMODULE_INCLUDES) $(CXX_FLAGS) -o $@
+
 $(EXEC): $(OBJECTS)
 	$(CXX) $(LIBS) $(LINKER_FLAGS) -o $@ $^
 
