@@ -8,14 +8,16 @@ BUILD_DIR = build
 
 LIB_INCLUDE_DIR = libinclude
 INCLUDE_DIR = include
-SUBMODULE_INCLUDE_DIRS = $(shell find ../submodules -name include)
-SUBMODULE_INCLUDES = $(addprefix -I, $(SUBMODULE_INCLUDE_DIRS))
+
+SUBMODULE_FINAL_LIBRARIES =../submodules/rrad/librrad.so ../submodules/pistache_makefile/libpistache.so
+SUBMODULE_INCLUDE_DIRS = $(patsubst %,%include,$(dir $(SUBMODULE_FINAL_LIBRARIES)))
+SUBMODULE_LINKS = $(patsubst lib%.so,%,$(notdir $(SUBMODULE_FINAL_LIBRARIES)))
 
 HEADERS = $(shell find include -name "*.h") $(LIB_HEADERS)
 SOURCES = $(shell find src -name "*.cpp")
 OBJECTS = $(addprefix build/, $(patsubst %.cpp,%.o,$(SOURCES)))
 
-LIBS = -lpistache -lpthread
+LIBS = -lpthread 
 
 all: debug
 
@@ -23,20 +25,21 @@ debug: CXX_FLAGS += -g
 debug: $(EXEC)
 release: $(EXEC)
 
+$(SUBMODULE_FINAL_LIBRARIES):
+	echo "Building $<..."
+	make -C $(@D)
+
 $(OBJECTS): build/%.o : %.cpp $(HEADERS)
 	mkdir -p $(@D)
-	$(CXX) $< -I$(INCLUDE_DIR) -I$(LIB_INCLUDE_DIR) $(SUBMODULE_INCLUDES) $(CXX_FLAGS) -o $@
+	$(CXX) -I$(INCLUDE_DIR) -I$(LIB_INCLUDE_DIR) $(addprefix -I, $(SUBMODULE_INCLUDE_DIRS)) $(CXX_FLAGS) -c -o $@ $< 
 
-$(EXEC): $(OBJECTS)
-	$(CXX) $(LIBS) $(LINKER_FLAGS) -o $@ $^
-
-simple:
-	$(CXX) src/main.cpp src/deve_ui_server.cpp src/deve_peer.cpp -Iinclude -Ilibinclude $(LIBS) -o $(EXEC)
+$(EXEC): $(OBJECTS) $(SUBMODULE_FINAL_LIBRARIES)
+	cp $(SUBMODULE_FINAL_LIBRARIES) .
+	$(CXX)  $(OBJECTS) -L. $(LIBS) $(addprefix -l, $(SUBMODULE_LINKS)) $(LINKER_FLAGS) -o $@
 
 .PHONY: clean
 
 clean:
 	rm -rf build/
-	rm -rf *.dSYM/
 	rm -f $(EXEC)
-	rm -f *.out
+	rm -f *.so
