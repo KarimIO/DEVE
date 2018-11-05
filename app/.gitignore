@@ -1,3 +1,5 @@
 deve-app
 *.so
 build/
+*.out
+./*.jpg
