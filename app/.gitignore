@@ -3,3 +3,4 @@ deve-app
 build/
 *.out
 ./*.jpg
+run

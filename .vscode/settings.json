@@ -60,6 +60,8 @@
         "typeinfo": "cpp",
         "utility": "cpp",
         "valarray": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "__config": "cpp",
+        "__nullptr": "cpp"
     }
 }

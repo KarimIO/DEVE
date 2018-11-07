@@ -3,3 +3,4 @@ deve-ads
 build/
 *.out
 ./*.jpg
+run
