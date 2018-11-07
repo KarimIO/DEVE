@@ -1,7 +1,7 @@
 CXX= c++
 CXX_FLAGS= -pedantic -std=c++17 
 LINKER_FLAGS = 
-EXEC = deve-app
+EXEC = deve-ads
 
 SRC_DIR = src
 BUILD_DIR = build
@@ -9,7 +9,7 @@ BUILD_DIR = build
 LIB_INCLUDE_DIR = ../libinclude
 INCLUDE_DIR = include
 
-SUBMODULE_FINAL_LIBRARIES =../submodules/rrad/librrad.so ../submodules/pistache_makefile/libpistache.so
+SUBMODULE_FINAL_LIBRARIES =../submodules/rrad/librrad.so
 SUBMODULE_INCLUDE_DIRS = $(patsubst %,%include,$(dir $(SUBMODULE_FINAL_LIBRARIES)))
 SUBMODULE_LINKS = $(patsubst lib%.so,%,$(notdir $(SUBMODULE_FINAL_LIBRARIES)))
 

@@ -1,0 +1,5 @@
+deve-ads
+*.so
+build/
+*.out
+./*.jpg
