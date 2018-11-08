@@ -16,7 +16,7 @@ RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", 9
 
 int main(int argc, char *argv[]) {
 
-#if 0
+#if 1
     uint32 chosenPort = 9090;
     int thr = 2;
 

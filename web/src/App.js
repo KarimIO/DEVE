@@ -16,7 +16,7 @@ class App extends Component {
 				username: "",
 				name: ""
 			},
-			selscreen: 3,
+			selscreen: 1,
 			my_images: [],
 			my_images_loading: true,
 			download_images: [],
@@ -32,15 +32,17 @@ class App extends Component {
 		}
 	}
 
+	domain = "http://localhost:9090/";
+
 	fetchMyImages = () => {
-		fetch("/server/my.json").then((e) => e.json())
+		fetch(this.domain + "/images/karimah").then((e) => e.json())
 		.then((e) => {
 			this.setState({my_images_loading: false, my_images: e});
 		});
 	}
 
 	fetchOtherImages = () => {
-		fetch("/server/other.json").then((e) => e.json())
+		fetch(this.domain + "/images/" + this.state.seluser).then((e) => e.json())
 		.then((e) => {
 			this.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		}).catch((e) => {
@@ -60,7 +62,7 @@ class App extends Component {
 	}
 
 	fetchUserList = () => {
-		fetch("/server/userlist.json").then((e) => e.json())
+		fetch(this.domain + "userlist").then((e) => e.json())
 		.then((e) => {
 			this.setState({user_list_error: false, user_list_loading: false, user_list: e});
 		}).catch((e) => {
@@ -100,14 +102,14 @@ class App extends Component {
 		console.log("Logged in as: ", user);
 		this.setState({user: user});
 		
-		fetch("http://localhost:9080/images/").then(function(response) {
+		/*fetch("http://localhost:9080/images/").then(function(response) {
 			return response.text();
 		}).then(function(data) {
 			console.log(data);
 			document.body.innerHTML = `<img src='data:image/png;base64, ${data}' />`;
 		}).catch((e) => {
 			console.log("Error:", e);
-		});
+		});*/
 
 		setTimeout(this.fetchMyImages, 1000);
 		setTimeout(this.fetchDownloadedImages, 1000);

@@ -5,8 +5,8 @@ export default class FriendsBar extends Component {
     getList = () => {
         let list = this.props.list;
         return list.map((e, i) => {
-            return <div className={(this.props.sel === e.username) ? "selected" : ""} onClick={() => this.props.setUser(e.username)} key={i}>
-                {e.name}
+            return <div className={(this.props.sel === e) ? "selected" : ""} onClick={() => this.props.setUser(e)} key={i}>
+                {e}
             </div> 
         });
     }
