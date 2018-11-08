@@ -24,7 +24,3 @@ std::vector<std::string> DevePeer::getUserList() {
 
     return users;
 }
-
-DevePeer::~DevePeer() {
-
-}

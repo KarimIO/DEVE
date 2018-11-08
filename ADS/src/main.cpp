@@ -1,7 +1,9 @@
-#include "Dispatcher.h"
-#include "Registrar.h"
+#include <Dispatcher.h>
+#include <Registrar.h>
 
-RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher(10000);
+#include "ADSConstants.h"
+
+RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher(ADS_USERNAME, ADS_PORT);
 
 int main(int argc, char** argv) {
     new Registrar();

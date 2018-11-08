@@ -12,7 +12,6 @@ public:
     void setUpUIServer(Pistache::Address addr);
     void start();
     std::vector<std::string> getUserList();
-    ~DevePeer();
 private:
     DeveUIServer ui_server_;
 };

@@ -1,11 +1,12 @@
 #include "Registrar.h"
 
+#include <iostream>
 #include <sys/time.h>
 
 Registrar::Registrar() {
     static int counter = 0;
     JSON id;
-    id["ownerID"] = "deve-ads";
+    id["ownerID"] = "";
     id["unixTimestamp"] = (uint32)time(NULL);
     id["id"] = counter++;
     id["class"] = "Registrar";
@@ -20,6 +21,7 @@ bool Registrar::reg(std::string name, std::string password, std::string publicKe
     newUser.password = password;
     newUser.publicKey = publicKey;
     registry[name] = newUser;
+    std::cout << "User " << name << " registered with key " << publicKey << "." << std::endl;
     return true;
 }
 
