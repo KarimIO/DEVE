@@ -1,4 +1,5 @@
 #include "Registrar.h"
+#include "ADSConstants.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -34,10 +35,6 @@ bool Registrar::authenticate(std::string name, std::string password, std::string
     return false;
 }
 
-void Registrar::startStatistics(JSON id) {
-    new Statistics(id);
-}
-
 JSON Registrar::executeRPC(std::string name, JSON arguments) {
     if (name == "authenticate") {
         JSON reply;
@@ -47,9 +44,6 @@ JSON Registrar::executeRPC(std::string name, JSON arguments) {
         JSON reply;
         reply["result"] = reg(arguments["userName"], arguments["password"], arguments["publicKey"]);
         return reply;
-    } else if (name == "startStatistics") {
-        startStatistics(arguments);
-        return JSON();
-    }
+    } 
     throw "rpc.unknownMethod";
 }

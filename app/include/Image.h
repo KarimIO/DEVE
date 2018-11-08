@@ -18,6 +18,7 @@ format:
     {
         ownerID: ..,
         views: #,
+        thumb: base64_img_data
         data: base64_img_data,
         access: {
 
@@ -31,14 +32,14 @@ public:
     JSON img_json;
 
     static std::queue< std::pair<std::string, std::string> > requests;
-    Image(JSON img_json);
+    Image(std::string base64, std::string thumbBase64);
 
     //gets the underlying JSON as a string to be stored in the JPEG
     std::string getString(); //for JPEG
     JSON getJSON();
 
     // Remote methods
-    void setAccess(uint32 view_cnt);
+    void setAccess(std::string targetUser, uint32 view_cnt);
     void recordView(std::string viewer);
     void requestAccess(std::string requester);
  
