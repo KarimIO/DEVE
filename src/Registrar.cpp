@@ -6,7 +6,7 @@
 Registrar::Registrar() {
     static int counter = 0;
     JSON id;
-    id["ownerID"] = "";
+    id["ownerID"] = ADS_USERNAME;
     id["unixTimestamp"] = (uint32)time(NULL);
     id["id"] = counter++;
     id["class"] = "Registrar";
@@ -28,6 +28,7 @@ bool Registrar::reg(std::string name, std::string password, std::string publicKe
 bool Registrar::authenticate(std::string name, std::string password, std::string ip) {
     if (registry.find(name) != registry.end() && registry[name].password == password) {
         registry[name].lastIP = ip;
+    std::cout << "User " << name << " logged in on IP " << ip << "." << std::endl;
         return true;
     }
     return false;
