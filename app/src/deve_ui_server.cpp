@@ -1,6 +1,9 @@
 #include <deve_ui_server.h>
 #include <deve_peer.h>
 #include <JSON.h>
+#include <fstream>
+#include <vector>
+#include <base64.h>
 
 using namespace Pistache;
 using namespace nlohmann;
@@ -29,14 +32,15 @@ void DeveUIServer::setupRoutes() {
 
     Routes::Get(router_, "/auth", Routes::bind(&DeveUIServer::doAuth, this));
     Routes::Get(router_, "/downloaded", Routes::bind(&DeveUIServer::getDownloadedImages, this));
-    Routes::Get(router_, "/images/:name/", Routes::bind(&DeveUIServer::getUserImages, this));
+    Routes::Get(router_, "/images/", Routes::bind(&DeveUIServer::getUserImages, this));
     Routes::Get(router_, "/userlist", Routes::bind(&DeveUIServer::getUserList, this));
 }
 
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     json j = {
-                {"success"}
-            };
+        {"success"}
+    };
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
@@ -45,7 +49,25 @@ void DeveUIServer::getDownloadedImages(const Pistache::Rest::Request& request, P
 }
 
 void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
-    response.send(Pistache::Http::Code::Ok, "DEVE User Images List Reached.");
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
+    std::ifstream infile("tests/input.jpeg");
+    if (infile.fail()) {
+        std::cerr << "FAIL\n";
+        return; 
+    }
+
+    infile.seekg(0, infile.end);
+    size_t length = infile.tellg();
+    infile.seekg(0, infile.beg);
+
+    std::vector<char> buffer;
+    buffer.resize(length);
+    infile.read((char*)&buffer[0], length);
+
+    infile.close();
+    std::string b64 = base64_encode((const unsigned char *)&buffer[0], length);
+
+    response.send(Pistache::Http::Code::Ok, b64);
 }
 
 void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
