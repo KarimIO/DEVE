@@ -50,7 +50,9 @@ int main(int argc, char *argv[]) {
     auto rg = RRAD::RequestGenerator("donn");
     auto ua = UserArbitration("0.0.0.0", &rg);
     if (ua.reg(&rg, "pass", "aksdmasldmlkas")) {
-        std::cout << "Succ";
+        if (ua.authenticate(&rg, "pass")) {
+            std::cout << "Success." << std::endl;
+        }
     }
     
 #endif
