@@ -1,5 +1,6 @@
-#include <deve_ui_server.h>
-#include <deve_peer.h>
+
+#include "deve_ui_server.h"
+
 #include <JSON.h>
 #include <fstream>
 #include <vector>
@@ -8,23 +9,19 @@
 using namespace Pistache;
 using namespace nlohmann;
 
-DeveUIServer::DeveUIServer(DevePeer *peer) : peer_(peer) {
-
-}
-
 void DeveUIServer::setUpUIServer(Pistache::Address addr) {
     auto opts = Http::Endpoint::options()
         .threads(2)
         .flags(Tcp::Options::InstallSignalHandler);
 
-    http_endpoint_ = new Http::Endpoint(addr);
-    http_endpoint_->init(opts);
+    http_endpoint_ = std::shared_ptr<Pistache::Http::Endpoint>(new Http::Endpoint(addr));
     setupRoutes();
+    http_endpoint_->init(opts);
+    http_endpoint_->setHandler(router_.handler());
+    http_endpoint_->serve();
 }
 
 void DeveUIServer::start() {
-    http_endpoint_->setHandler(router_.handler());
-    http_endpoint_->serve();
 }
 
 void DeveUIServer::setupRoutes() {
@@ -71,7 +68,7 @@ void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistach
 }
 
 void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
-    std::vector<std::string> list = peer_->getUserList();
+    std::vector<std::string> list = {"egg", "aLSO butter"};
     
     json j;
     for (auto &item : list) {
@@ -82,6 +79,4 @@ void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache:
 }
 
 DeveUIServer::~DeveUIServer() {
-    if (http_endpoint_)
-        http_endpoint_->shutdown();
 }

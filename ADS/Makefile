@@ -32,6 +32,8 @@ OBJECTS = $(addprefix build/build/, $(patsubst %.cpp,%.o,$(SOURCES)))
 
 LIBS = -pthread
 
+SUBDIRPATHS = $(shell perl ../split.pl $(SUBMODULE_DIRS) .)
+
 all: debug
 
 debug: CXX_FLAGS += -g
@@ -53,9 +55,9 @@ $(EXEC): $(OBJECTS) $(SUBMODULE_FINAL_LIBRARIES)
 run:
 	echo '#!/bin/bash' > run
 	echo 'if [[ `uname` == "Linux" ]]; then' >> run
-	echo 'LD_LIBRARY_PATH=$(shell perl ../split.pl $(SUBMODULE_DIRS)) ./deve-ads' >> run
+	echo 'LD_LIBRARY_PATH=$(SUBDIRPATHS) ./deve-ads' >> run
 	echo 'elif [[ `uname` == "Darwin" ]]; then' >> run
-	echo 'DYLD_LIBRARY_PATH=$(shell perl ../split.pl $(SUBMODULE_DIRS)) ./deve-ads' >> run
+	echo 'DYLD_LIBRARY_PATH=$(SUBDIRPATHS)  ./deve-ads' >> run
 	echo 'fi' >> run
 	chmod +x run
 

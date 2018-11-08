@@ -7,11 +7,8 @@
 #include <pistache/router.h>
 #include <pistache/endpoint.h>
 
-class DevePeer;
-
 class DeveUIServer {
 public:
-    DeveUIServer(DevePeer *Peer);
     void setUpUIServer(Pistache::Address addr);
     void start();
     ~DeveUIServer();
@@ -21,10 +18,8 @@ private:
     void getDownloadedImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void getUserImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
-    Pistache::Http::Endpoint *http_endpoint_;
+    std::shared_ptr<Pistache::Http::Endpoint> http_endpoint_ = NULL;
     Pistache::Rest::Router router_;
-
-    DevePeer *peer_;
 };
 
 #endif

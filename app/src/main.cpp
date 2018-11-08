@@ -3,35 +3,54 @@
 
 #include <signal.h>
 
-#include "deve_peer.h"
+#include "deve_ui_server.h"
 
 #include <Dispatcher.h>
 #include <pistache/endpoint.h>
 
 using namespace Pistache;
 
-RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", 32000);
+RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", 9999);
+
 
 int main(int argc, char *argv[]) {
-#if 1
-    try {
-        Port port(9080);
 
-        int thr = 2;
+#if 1
+    uint32 chosenPort = 9090;
+    int thr = 2;
+
+    auto killThread = std::thread([](){
+        std::cout << "*whispers* (Ctrl+D to exit)" << std::endl;
+        std::string garbage;
+        std::getline(std::cin, garbage);
+        if (std::cin.eof()) {
+            exit(101);
+        }
+    });
+    killThread.detach();
+
+    try {
 
         if (argc >= 2) {
-            port = std::stol(argv[1]);
+            chosenPort = std::stoi(argv[1]);
         }
 
+        Port port(chosenPort);
         Address addr(Ipv4::any(), port);
         
-        DevePeer peer;
-        //peer.setUpUIServer(addr);
-        //peer.start();
+        DeveUIServer duis;
+        std::cout << "[DEVE] Serving REST on port " << chosenPort << "." << std::endl;
+        duis.setUpUIServer(addr);
+
     } catch(std::runtime_error &e) {
         std::cerr << e.what() << "\n";
     }
 #else
-    auto ua = UserArbitration();
+    auto rg = RequestGenerator("donn");
+    auto ua = UserArbitration(adsIP, &rg);
+    if (ua.authenticate) {
+        std::cout << "Succ";
+    }
+    
 #endif
 }

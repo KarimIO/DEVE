@@ -23,6 +23,8 @@ OBJECTS = $(addprefix build/build/, $(patsubst %.cpp,%.o,$(SOURCES)))
 
 LIBS = -pthread 
 
+SUBDIRPATHS = $(shell perl ../split.pl $(SUBMODULE_DIRS) .)
+
 all: debug
 
 debug: CXX_FLAGS += -g
@@ -44,7 +46,7 @@ $(EXEC): $(OBJECTS) $(SUBMODULE_FINAL_LIBRARIES)
 
 run:
 	echo '#!/bin/bash' > run
-	echo 'LD_LIBRARY_PATH=$(shell perl ../split.pl $(SUBMODULE_DIRS)) ./deve-app' >> run
+	echo 'LD_LIBRARY_PATH=$(SUBDIRPATHS) ./deve-app' >> run
 	chmod +x run
 
 clean:
