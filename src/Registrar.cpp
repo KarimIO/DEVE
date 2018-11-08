@@ -12,21 +12,23 @@ Registrar::Registrar() {
     RRAD::Dispatcher::singleton.registerObject(id, this);
 }
 
-bool Registrar::reg(std::string name, std::string password) {
+bool Registrar::reg(std::string name, std::string password, std::string publicKey) {
     if (registry.find(name) == registry.end()) {
         return false;
     }
-    
-    registry[name] = password;
+    auto newUser = User();
+    newUser.password = password;
+    newUser.publicKey = publicKey;
+    registry[name] = newUser;
     return true;
 }
 
-bool Registrar::authenticate(std::string name, std::string password) {
-    if (registry.find(name) == registry.end()) {
-        return false;
+bool Registrar::authenticate(std::string name, std::string password, std::string ip) {
+    if (registry.find(name) != registry.end() && registry[name].password == password) {
+        registry[name].lastIP = ip;
+        return true;
     }
-    
-    return registry[name] == password;
+    return false;
 }
 
 void Registrar::startStatistics(JSON id) {
@@ -36,11 +38,11 @@ void Registrar::startStatistics(JSON id) {
 JSON Registrar::executeRPC(std::string name, JSON arguments) {
     if (name == "authenticate") {
         JSON reply;
-        reply["result"] = authenticate(arguments["userName"], arguments["password"]);
+        reply["result"] = authenticate(arguments["userName"], arguments["password"], arguments["__RRAD__INTERNAL__senderIP"]);
         return reply;
     } else if (name == "register") {
         JSON reply;
-        reply["result"] = reg(arguments["userName"], arguments["password"]);
+        reply["result"] = reg(arguments["userName"], arguments["password"], arguments["publicKey"]);
         return reply;
     } else if (name == "startStatistics") {
         startStatistics(arguments);

@@ -7,10 +7,16 @@
 #include <string>
 #include <map>
 
+struct User {
+    std::string password;
+    std::string publicKey;
+    std::string lastIP;
+};
+
 class Registrar: public RRAD::RemoteObject {
-    std::map<std::string, std::string> registry;
-    bool authenticate(std::string userName, std::string password);
-    bool reg(std::string userName, std::string password);
+    std::map<std::string, User> registry;
+    bool authenticate(std::string userName, std::string password, std::string ip);
+    bool reg(std::string userName, std::string password, std::string publicKey);
     void startStatistics(JSON id);
 public:
     Registrar();

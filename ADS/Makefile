@@ -6,6 +6,9 @@ EXEC = deve-ads
 SRC_DIR = src
 BUILD_DIR = build
 
+COMMON_SRC_DIR = ../src
+COMMON_INCLUDE_DIR = ../include
+
 LIB_INCLUDE_DIR = ../libinclude
 INCLUDE_DIR =include
 
@@ -23,11 +26,11 @@ else
 	SUBMODULE_LINKS =$(patsubst lib%.so,%,$(notdir $(SUBMODULE_FINAL_LIBRARIES)))
 endif
 
-HEADERS = $(shell find include -name "*.h") $(LIB_HEADERS)
-SOURCES = $(shell find src -name "*.cpp")
-OBJECTS = $(addprefix build/, $(patsubst %.cpp,%.o,$(SOURCES)))
+HEADERS = $(shell find $(INCLUDE_DIR) -name "*.h") $(shell find $(COMMON_INCLUDE_DIR) -name "*.h") $(LIB_HEADERS)
+SOURCES = $(shell find $(SRC_DIR) -name "*.cpp") $(shell find $(COMMON_SRC_DIR) -name "*.cpp")
+OBJECTS = $(addprefix build/build/, $(patsubst %.cpp,%.o,$(SOURCES)))
 
-LIBS = -lpthread 
+LIBS = -pthread
 
 all: debug
 
@@ -39,15 +42,15 @@ $(SUBMODULE_FINAL_LIBRARIES):
 	echo "Building $<..."
 	make -C $(@D)
 
-$(OBJECTS): build/%.o : %.cpp $(HEADERS)
+$(OBJECTS): build/build/%.o : %.cpp $(HEADERS)
 	mkdir -p $(@D)
-	$(CXX) -I$(INCLUDE_DIR) -I$(LIB_INCLUDE_DIR) $(addprefix -I, $(SUBMODULE_INCLUDE_DIRS)) $(CXX_FLAGS) -c -o $@ $< 
+	$(CXX) -I$(COMMON_INCLUDE_DIR) -I$(INCLUDE_DIR) -I$(LIB_INCLUDE_DIR) $(addprefix -I, $(SUBMODULE_INCLUDE_DIRS)) $(CXX_FLAGS) -c -o $@ $< 
 
 $(EXEC): $(OBJECTS) $(SUBMODULE_FINAL_LIBRARIES)
-	$(CXX)  $(OBJECTS) $(addprefix -L, $(SUBMODULE_DIRS)) $(LIBS) $(addprefix -l, $(SUBMODULE_LINKS)) $(LINKER_FLAGS) -o $@
+	$(CXX) $(LINKER_FLAGS) $(LIBS)  $(OBJECTS) $(addprefix -L, $(SUBMODULE_DIRS)) $(addprefix -l, $(SUBMODULE_LINKS)) -o $@
 
 run:
-	echo '#!/bin/sh' > run
+	echo '#!/bin/bash' > run
 	echo 'if [[ `uname` == "Linux" ]]; then' >> run
 	echo 'LD_LIBRARY_PATH=$(shell perl ../split.pl $(SUBMODULE_DIRS)) ./deve-ads' >> run
 	echo 'elif [[ `uname` == "Darwin" ]]; then' >> run

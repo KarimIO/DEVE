@@ -1,11 +1,15 @@
 #include <iostream>
 #include <exception>
 
-#include <deve_peer.h>
+#include "deve_peer.h"
+#include "Dispatcher.h"
+
 
 #include <pistache/endpoint.h>
 
 using namespace Pistache;
+
+RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher(9000);
 
 int main(int argc, char *argv[]) {
     try {
