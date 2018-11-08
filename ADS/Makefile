@@ -43,7 +43,7 @@ release: $(EXEC) run
 .PHONY: clean $(SUBMODULE_FINAL_LIBRARIES)
 
 $(SUBMODULE_FINAL_LIBRARIES):
-	make -C $(@D)
+	+make -C $(@D)
 
 $(OBJECTS): build/build/%.o : %.cpp $(HEADERS)
 	mkdir -p $(@D)

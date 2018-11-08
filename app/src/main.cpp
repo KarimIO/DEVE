@@ -4,6 +4,7 @@
 #include <signal.h>
 
 #include "deve_ui_server.h"
+#include "UserArbitration.h"
 
 #include <Dispatcher.h>
 #include <pistache/endpoint.h>
@@ -15,7 +16,7 @@ RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", 9
 
 int main(int argc, char *argv[]) {
 
-#if 1
+#if 0
     uint32 chosenPort = 9090;
     int thr = 2;
 
@@ -46,9 +47,9 @@ int main(int argc, char *argv[]) {
         std::cerr << e.what() << "\n";
     }
 #else
-    auto rg = RequestGenerator("donn");
-    auto ua = UserArbitration(adsIP, &rg);
-    if (ua.authenticate) {
+    auto rg = RRAD::RequestGenerator("donn");
+    auto ua = UserArbitration("0.0.0.0", &rg);
+    if (ua.reg(&rg, "pass", "aksdmasldmlkas")) {
         std::cout << "Succ";
     }
     

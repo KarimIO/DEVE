@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "UserArbitration.h"
 #include "ADSConstants.h"
 
@@ -11,7 +13,7 @@ UserArbitration::UserArbitration(std::string ip, RRAD::RequestGenerator* rg) {
 }
 
 bool UserArbitration::reg(RRAD::RequestGenerator* rg, std::string password, std::string publicKey) {
-    auto request = rg->rmi("Registrar", ADS_USERNAME, registrarID, "auth",
+    auto request = rg->rmi("Registrar", ADS_USERNAME, registrarID, "register",
         {
             {"userName", rg->getUserName()},
             {"password", password},
@@ -23,7 +25,7 @@ bool UserArbitration::reg(RRAD::RequestGenerator* rg, std::string password, std:
 }
 
 bool UserArbitration::authenticate(RRAD::RequestGenerator* rg, std::string password) {
-    auto request = rg->rmi("Registrar", ADS_USERNAME, registrarID, "auth",
+    auto request = rg->rmi("Registrar", ADS_USERNAME, registrarID, "authenticate",
         {
             {"userName", rg->getUserName()},
             {"password", password}

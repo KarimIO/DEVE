@@ -14,7 +14,7 @@ Registrar::Registrar() {
 }
 
 bool Registrar::reg(std::string name, std::string password, std::string publicKey) {
-    if (registry.find(name) == registry.end()) {
+    if (registry.find(name) != registry.end()) {
         return false;
     }
     auto newUser = User();
