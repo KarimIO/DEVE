@@ -99,6 +99,16 @@ class App extends Component {
 	setUserInfo = (user) => {
 		console.log("Logged in as: ", user);
 		this.setState({user: user});
+		
+		fetch("http://localhost:9080/images/").then(function(response) {
+			return response.text();
+		}).then(function(data) {
+			console.log(data);
+			document.body.innerHTML = `<img src='data:image/png;base64, ${data}' />`;
+		}).catch((e) => {
+			console.log("Error:", e);
+		});
+
 		setTimeout(this.fetchMyImages, 1000);
 		setTimeout(this.fetchDownloadedImages, 1000);
 		setTimeout(this.fetchUserList, 400);
