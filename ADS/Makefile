@@ -38,8 +38,9 @@ debug: CXX_FLAGS += -g
 debug: $(EXEC) run
 release: $(EXEC) run
 
+.PHONY: clean $(SUBMODULE_FINAL_LIBRARIES)
+
 $(SUBMODULE_FINAL_LIBRARIES):
-	echo "Building $<..."
 	make -C $(@D)
 
 $(OBJECTS): build/build/%.o : %.cpp $(HEADERS)
@@ -57,8 +58,6 @@ run:
 	echo 'DYLD_LIBRARY_PATH=$(shell perl ../split.pl $(SUBMODULE_DIRS)) ./deve-ads' >> run
 	echo 'fi' >> run
 	chmod +x run
-
-.PHONY: clean
 
 clean:
 	rm -rf build/

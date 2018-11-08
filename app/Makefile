@@ -29,8 +29,9 @@ debug: CXX_FLAGS += -g
 debug: $(EXEC) run
 release: $(EXEC) run
 
+.PHONY: clean $(SUBMODULE_FINAL_LIBRARIES)
+
 $(SUBMODULE_FINAL_LIBRARIES):
-	echo "Building $<..."
 	make -C $(@D)
 
 $(OBJECTS): build/build/%.o : %.cpp $(HEADERS)
@@ -45,8 +46,6 @@ run:
 	echo '#!/bin/bash' > run
 	echo 'LD_LIBRARY_PATH=$(shell perl ../split.pl $(SUBMODULE_DIRS)) ./deve-app' >> run
 	chmod +x run
-
-.PHONY: clean
 
 clean:
 	rm -rf build/
