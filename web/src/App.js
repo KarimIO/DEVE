@@ -5,6 +5,7 @@ import DownloadedImages from "./sections/DownloadedImages"
 import RequestList from "./sections/RequestList.js"
 import Credentials from "./sections/Credentials.js"
 import FriendsBar from "./sections/FriendsBar.js"
+import ImageView from "./sections/ImageView.js"
 import "./css/main.css"
 
 class App extends Component {
@@ -29,10 +30,12 @@ class App extends Component {
 			req_loading: true,
 			ongoing_list: [],
 			ongoing_loading: true,
+			show_full_img: false,
+			full_img: ""
 		}
 	}
 
-	domain = "http://localhost:9090/";
+	domain = "http://localhost:22000/";
 
 	fetchMyImages = () => {
 		fetch(this.domain + "/images/karimah").then((e) => e.json())
@@ -121,6 +124,24 @@ class App extends Component {
 		this.credentials.logOut();
 	}
 
+	showImageView = (data) => {
+		let me = this;
+		fetch(this.domain + "images/" + "karimah" + "/" + data).then((e) => {return e.text()})
+		.then((e) => {
+			console.log(e);
+			me.setState({show_full_img: true, full_img: e});
+			//this.setState({other_images_error: false, other_images_loading: false, other_images: e});
+		})
+		.then((e) => {}).catch((e) => {
+			console.log(e);
+			//this.setState({other_images_error: true, other_images_loading: false});
+		});
+	}
+
+	hideImageView = () => {
+		this.setState({show_full_img: false});
+	}
+
 	render() {
 		let s = this.state.selscreen;
 		let notification_count = this.state.req_list.length;
@@ -130,17 +151,20 @@ class App extends Component {
 			<div className="App">
 				<FriendsBar name={this.state.user.name} sel={this.state.selscreen === 0 ? this.state.seluser : ""} setUser={this.setUser} loading={this.state.user_list_loading} list={this.state.user_list} />
 				<Credentials ref={instance => { this.credentials = instance; }} setUserInfo={this.setUserInfo} />
+				{/*<ImageUpload />*/}
+				<ImageView image={this.state.full_img} shown={this.state.show_full_img} hideImageView={this.hideImageView} />
 				<main>
 					<nav>
 						<span className={s === 1 ? "selected" : ""} onClick={() => this.setScreen(1)}>My Images</span>
 						<span className={s === 2 ? "selected" : ""} onClick={() => this.setScreen(2)}>Downloaded Images</span>
 						<span className={`${has_notifications ? "request-tab" : ""}${s === 3 ? " selected" : ""}`} onClick={() => this.setScreen(3)}>Requests {has_notifications && <div className="notification">{notification_count}</div>}</span>
 						<span className="signout-btn" onClick={this.handleLogOut}>Sign Out</span>
+						<span className="add-btn" onClick={this.showUpload}></span>
 					</nav>
-					{s === 0 && <OtherImages loading={this.state.other_images_loading} gallery={this.state.other_images} />}
-					{s === 1 && <MyImages loading={this.state.my_images_loading} gallery={this.state.my_images} />}
-					{s === 2 && <DownloadedImages loading={this.state.download_images_loading} gallery={this.state.download_images} />}
-					{s === 3 && <RequestList loading={this.state.req_loading} ongoing={this.state.ongoing_list} requests={this.state.req_list} />}
+					{s === 0 && <OtherImages showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
+					{s === 1 && <MyImages showImageView={this.showImageView} loading={this.state.my_images_loading} gallery={this.state.my_images} />}
+					{s === 2 && <DownloadedImages showImageView={this.showImageView} loading={this.state.download_images_loading} gallery={this.state.download_images} />}
+					{s === 3 && <RequestList showImageView={this.showImageView} loading={this.state.req_loading} ongoing={this.state.ongoing_list} requests={this.state.req_list} />}
 				</main>
 			</div>
 		);
