@@ -5,38 +5,47 @@
 
 #include "deve_ui_server.h"
 #include "UserArbitration.h"
+#include "ADSConstants.h"
 
 #include <Dispatcher.h>
 #include <pistache/endpoint.h>
 
 using namespace Pistache;
 
-RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", 9999);
 
+RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", REQ_PORT);
+
+void deathRoutine() {
+    // Save here
+    exit(0);
+}
 
 int main(int argc, char *argv[]) {
+    // Load here
 
-#if 1
-    uint32 chosenPort = 9090;
-    int thr = 2;
+    if (argc < 2) {
+        std::cerr << "ADS address must be provided with invocation." << std::endl;
+        exit(64);
+    }
+
+    auto adsIP = std::string(argv[1]);
+#if 0
 
     auto killThread = std::thread([](){
-        std::cout << "*whispers* (Ctrl+D to exit)" << std::endl;
-        std::string garbage;
-        std::getline(std::cin, garbage);
-        if (std::cin.eof()) {
-            exit(101);
+        std::cout << "(Ctrl+D to exit)" << std::endl;
+        for(;;) {
+            std::string garbage;
+            std::getline(std::cin, garbage);
+            if (std::cin.eof()) {
+                deathRoutine();
+            }
         }
     });
     killThread.detach();
 
     try {
 
-        if (argc >= 2) {
-            chosenPort = std::stoi(argv[1]);
-        }
-
-        Port port(chosenPort);
+        Port port(REST_PORT);
         Address addr(Ipv4::any(), port);
         
         DeveUIServer duis;
@@ -48,12 +57,14 @@ int main(int argc, char *argv[]) {
     }
 #else
     auto rg = RRAD::RequestGenerator("donn");
-    auto ua = UserArbitration("0.0.0.0", &rg);
-    if (ua.reg(&rg, "pass", "aksdmasldmlkas")) {
+    auto ua = UserArbitration(adsIP, &rg);
+    if (ua.reg(&rg, "password", "not a pkey")) {
         if (ua.authenticate(&rg, "pass")) {
-            std::cout << "Success." << std::endl;
+            std::cout << "Authorization success." << std::endl;
         }
     }
+    
+    
     
 #endif
 }

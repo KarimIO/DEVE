@@ -8,6 +8,7 @@ static auto defaultJSON = R"(
 {
     "ownerID": "__NOUSER",
     "data": "hecc",
+    "thumb": "heccer",
     "views": 0,
     "access": {
     }
@@ -68,7 +69,8 @@ JSON Image::executeRPC(std::string name, JSON arguments) {
     } else if (name == "__sendView") {
         recordView(arguments["userName"]);
         return JSON();
+    } else if (name == "download") {
+        return getJSON();
     }
-    
     throw "rpc.unknownMethod";
 }
