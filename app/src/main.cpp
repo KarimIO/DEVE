@@ -5,7 +5,7 @@
 
 #include "deve_ui_server.h"
 #include "UserArbitration.h"
-#include "ADSConstants.h"
+#include "Constants.h"
 #include "DumpFile.h"
 #include "Connection.h"
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
         Port port(REST_PORT);
         Address addr(Ipv4::any(), port);
         
-        DeveUIServer duis;
+        DeveUIServer duis(adsIP);
         std::cout << "[DEVE] Serving REST on port " << REST_PORT << "." << std::endl;
         duis.setUpUIServer(addr);
 

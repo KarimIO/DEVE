@@ -1,14 +1,16 @@
 #include <iostream>
 
 #include "UserArbitration.h"
-#include "ADSConstants.h"
+#include "Constants.h"
 
 #define __com(x) rg->communicateRMI(adsIP, ADS_PORT, x)
 
-UserArbitration::UserArbitration(std::string ip, RRAD::RequestGenerator* rg) {
+UserArbitration::UserArbitration(std::string ip) {
     adsIP = ip;
-    auto request = rg->listRPC("Registrar", ADS_USERNAME);
-    auto reply = __com(request);
+
+    RRAD::RequestGenerator reqGen(INIT_USERNAME);
+    auto request = reqGen.listRPC("Registrar", ADS_USERNAME);
+    auto reply = reqGen.communicateRMI(adsIP, ADS_PORT,request);
     registrarID = reply[0];
 }
 

@@ -1,5 +1,6 @@
 
 #include "deve_ui_server.h"
+#include "TweetNACL.h"
 
 #include <fstream>
 #include <vector>
@@ -8,6 +9,10 @@
 
 using namespace Pistache;
 using namespace nlohmann;
+
+DeveUIServer::DeveUIServer(std::string adsIP): adsIP(adsIP) {
+    rg = RRAD::RequestGenerator(INIT_USERNAME);
+}
 
 void DeveUIServer::setUpUIServer(Pistache::Address addr) {
     auto opts = Http::Endpoint::options()
@@ -21,9 +26,6 @@ void DeveUIServer::setUpUIServer(Pistache::Address addr) {
     http_endpoint_->serve();
 }
 
-void DeveUIServer::start() {
-}
-
 void DeveUIServer::setupRoutes() {
     using namespace Rest;
 
@@ -32,6 +34,22 @@ void DeveUIServer::setupRoutes() {
     Routes::Get(router_, "/images/:id", Routes::bind(&DeveUIServer::getUserImages, this));
     Routes::Get(router_, "/images/:id/:img", Routes::bind(&DeveUIServer::getUserImage, this));
     Routes::Get(router_, "/userlist", Routes::bind(&DeveUIServer::getUserList, this));
+}
+
+void DeveUIServer::reg(std::string userName, std::string password) {
+    rg = RRAD::RequestGenerator(userName);
+    crypto_box_keypair(publicKey, privateKey);
+    std::string pubKeyString = base64_encode(publicKey);
+    if (!ua.reg(&rg, password, pubKeyString)) {
+        throw "auth.registrationFail";
+    }
+}
+
+void DeveUIServer::authenticate(std::string userName, std::string password) {
+    if (!ua.authenticate(&rg, "password")) {
+        throw "auth.fail";
+    }
+
 }
 
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
@@ -116,7 +134,4 @@ json DeveUIServer::fetchUsers() {
         "donn",
         "karimah"
     };
-}
-
-DeveUIServer::~DeveUIServer() {
 }

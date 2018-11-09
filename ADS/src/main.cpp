@@ -1,7 +1,7 @@
 #include <Dispatcher.h>
 #include <Registrar.h>
 
-#include "ADSConstants.h"
+#include "Constants.h"
 
 RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher(ADS_USERNAME, ADS_PORT);
 

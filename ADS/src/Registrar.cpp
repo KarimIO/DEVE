@@ -1,5 +1,5 @@
 #include "Registrar.h"
-#include "ADSConstants.h"
+#include "Constants.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -21,6 +21,7 @@ bool Registrar::reg(std::string name, std::string password, std::string publicKe
     auto newUser = User();
     newUser.password = password;
     newUser.publicKey = publicKey;
+    newUser.lastIP = std::nullopt;
     registry[name] = newUser;
     std::cout << "User " << name << " registered with key " << publicKey << "." << std::endl;
     return true;
@@ -29,10 +30,24 @@ bool Registrar::reg(std::string name, std::string password, std::string publicKe
 bool Registrar::authenticate(std::string name, std::string password, std::string ip) {
     if (registry.find(name) != registry.end() && registry[name].password == password) {
         registry[name].lastIP = ip;
-    std::cout << "User " << name << " logged in on IP " << ip << "." << std::endl;
+        std::cout << "User " << name << " logged in on IP " << ip << "." << std::endl;
         return true;
     }
     return false;
+}
+
+JSON Registrar::list() {
+    JSON json = JSON::array();
+    for (auto user: registry) {
+        if (!user.second.lastIP.has_value()) {
+            continue;
+        }
+        JSON obj;
+        obj["userName"] = user.first;
+        obj["ip"] = user.second.lastIP.value();
+        obj["publicKey"] = user.second.publicKey;
+        json.push_back(obj);
+    }
 }
 
 JSON Registrar::executeRPC(std::string name, JSON arguments) {
@@ -44,6 +59,8 @@ JSON Registrar::executeRPC(std::string name, JSON arguments) {
         JSON reply;
         reply["result"] = reg(arguments["userName"], arguments["password"], arguments["publicKey"]);
         return reply;
-    } 
+    } else if (name == "list") {
+        return list();
+    }
     throw "rpc.unknownMethod";
 }
