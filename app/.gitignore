@@ -3,5 +3,6 @@ deve-app
 build/
 *.out
 ./*.jpg
+./*.jpeg
 run
 ./compile_commands.json

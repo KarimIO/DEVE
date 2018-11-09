@@ -62,6 +62,7 @@
         "valarray": "cpp",
         "*.ipp": "cpp",
         "__config": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "algorithm": "cpp"
     }
 }

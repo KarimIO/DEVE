@@ -41,12 +41,11 @@ $(OBJECTS): build/build/%.o : %.cpp $(HEADERS)
 	$(CXX) -I$(INCLUDE_DIR) -I$(COMMON_INCLUDE_DIR) -I$(LIB_INCLUDE_DIR) $(addprefix -I, $(SUBMODULE_INCLUDE_DIRS)) $(CXX_FLAGS) -c -o $@ $< 
 
 $(EXEC): $(OBJECTS) $(SUBMODULE_FINAL_LIBRARIES)
-	cp $(SUBMODULE_FINAL_LIBRARIES) .
-	$(CXX)  $(OBJECTS) $(addprefix -L, $(SUBMODULE_DIRS)) $(LIBS) $(addprefix -l, $(SUBMODULE_LINKS)) $(LINKER_FLAGS) -o $@
+	$(CXX) $(OBJECTS) $(addprefix -L, $(SUBMODULE_DIRS)) $(LIBS) $(addprefix -l, $(SUBMODULE_LINKS)) $(LINKER_FLAGS) -o $@
 
 run:
 	echo '#!/bin/bash' > run
-	echo 'LD_LIBRARY_PATH=$(SUBDIRPATHS) ./deve-app' >> run
+	echo 'LD_LIBRARY_PATH=$(SUBDIRPATHS) ./deve-app $$@' >> run
 	chmod +x run
 
 clean:

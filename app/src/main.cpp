@@ -6,6 +6,8 @@
 #include "deve_ui_server.h"
 #include "UserArbitration.h"
 #include "ADSConstants.h"
+#include "DumpFile.h"
+#include "Connection.h"
 
 #include <Dispatcher.h>
 #include <pistache/endpoint.h>
@@ -29,7 +31,9 @@ int main(int argc, char *argv[]) {
     }
 
     auto adsIP = std::string(argv[1]);
-#if 0
+
+    std::cout << "Using ADS at " << adsIP << std::endl;
+#if 1
 
     auto killThread = std::thread([](){
         std::cout << "(Ctrl+D to exit)" << std::endl;
@@ -44,27 +48,30 @@ int main(int argc, char *argv[]) {
     killThread.detach();
 
     try {
-
         Port port(REST_PORT);
         Address addr(Ipv4::any(), port);
         
         DeveUIServer duis;
-        std::cout << "[DEVE] Serving REST on port " << chosenPort << "." << std::endl;
+        std::cout << "[DEVE] Serving REST on port " << REST_PORT << "." << std::endl;
         duis.setUpUIServer(addr);
 
     } catch(std::runtime_error &e) {
         std::cerr << e.what() << "\n";
     }
-#else
+
+#endif
+#if 0
     auto rg = RRAD::RequestGenerator("donn");
     auto ua = UserArbitration(adsIP, &rg);
-    if (ua.reg(&rg, "password", "not a pkey")) {
-        if (ua.authenticate(&rg, "pass")) {
-            std::cout << "Authorization success." << std::endl;
-        }
+    ua.reg(&rg, "password", "not a pkey");
+    if (!ua.authenticate(&rg, "password")) {
+        std::cout << "Authorization failed." << std::endl;
     }
+    std::cout << "Logged in." << std::endl;
     
-    
+    auto imgData = dumpFile("tests/images/xc201.jpg");
+    auto conn = RRAD::Connection("192.168.64.8", 20400);
+    conn.write(imgData);
     
 #endif
 }
