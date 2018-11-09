@@ -88,7 +88,7 @@ nav {
         }
         
         &:hover, &.selected {
-            background: $primary-color-fade;
+            background-color: $primary-color-fade;
             color: $primary-color;
 
             &::before {
@@ -597,6 +597,72 @@ button, input[type=submit] {
         
         .main {
             width: 100%;
+        }
+    }
+}
+
+.add-btn {
+    position: relative;
+    width: 4.5rem;
+    float: right;
+
+    &::after {
+        content: ' ';
+        background-image: url(/img/icons/add.svg);
+        background-position: center;
+        background-repeat: no-repeat;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.6;
+        transition: $transition-all;
+    }
+    
+    &:hover::after {
+            opacity: 0.8;;
+    }
+}
+
+.image-view {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 98;
+    opacity: 1;
+    transition: $transition-all;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: rgba(0,0,0,0.9);
+
+    &.hide {
+        pointer-events: none;
+        opacity: 0;
+    }
+
+    > div {
+        position: absolute;
+        top: 2vw;
+        right: 2vw;
+        background-image: url(/img/icons/close.svg);
+        background-position: center;
+        background-size: 80%;
+        background-repeat: no-repeat;
+        width:  4vw;
+        height: 4vw;
+        border-radius: 50%;
+        border: 2px solid white;
+        transition: $transition-all;
+        opacity: 0.3;
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.1);
+            opacity: 1;
         }
     }
 }

@@ -24,7 +24,7 @@ void deathRoutine() {
 
 int main(int argc, char *argv[]) {
     // Load here
-
+#if 0
     if (argc < 2) {
         std::cerr << "ADS address must be provided with invocation." << std::endl;
         exit(64);
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     auto adsIP = std::string(argv[1]);
 
     std::cout << "Using ADS at " << adsIP << std::endl;
+#endif
 #if 1
 
     auto killThread = std::thread([](){
