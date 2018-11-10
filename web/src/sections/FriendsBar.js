@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 export default class FriendsBar extends Component {
 
     getList = () => {
-        let list = this.props.list;
+        let list = Object.keys(this.props.list);
         return list.map((e, i) => {
             return <div className={(this.props.sel === e) ? "selected" : ""} onClick={() => this.props.setUser(e)} key={i}>
                 {e}

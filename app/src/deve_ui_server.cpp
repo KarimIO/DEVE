@@ -34,6 +34,7 @@ void DeveUIServer::setupRoutes() {
     Routes::Get(router_, "/images/:id", Routes::bind(&DeveUIServer::getUserImages, this));
     Routes::Get(router_, "/images/:id/:img", Routes::bind(&DeveUIServer::getUserImage, this));
     Routes::Get(router_, "/userlist", Routes::bind(&DeveUIServer::getUserList, this));
+    Routes::Post(router_, "/image", Routes::bind(&DeveUIServer::postImage, this));
 }
 
 void DeveUIServer::reg(std::string userName, std::string password) {
@@ -77,6 +78,23 @@ void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistach
     auto images = fetchUserImages(user);
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     response.send(Pistache::Http::Code::Ok, images.dump());
+}
+
+void DeveUIServer::postImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
+    auto image = request.body();
+    
+    auto s = base64_encode((const unsigned char *)image.c_str(), image.size());
+
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
+
+    std::ofstream o("file.jpg", std::ios::binary);
+    if (o.fail()) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, "0");
+    }
+    else {
+        o.write((char *)s.c_str(), s.size());
+        response.send(Pistache::Http::Code::Ok, "1");
+    }
 }
 
 JSON DeveUIServer::fetchUsers() {

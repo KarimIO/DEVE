@@ -6,6 +6,7 @@ import RequestList from "./sections/RequestList.js"
 import Credentials from "./sections/Credentials.js"
 import FriendsBar from "./sections/FriendsBar.js"
 import ImageView from "./sections/ImageView.js"
+import ImageUpload from "./sections/ImageUpload.js"
 import "./css/main.css"
 
 class App extends Component {
@@ -30,6 +31,7 @@ class App extends Component {
 			req_loading: true,
 			ongoing_list: [],
 			ongoing_loading: true,
+			show_upload: false,
 			show_full_img: false,
 			full_img: ""
 		}
@@ -142,6 +144,14 @@ class App extends Component {
 		this.setState({show_full_img: false});
 	}
 
+	showImageUpload = () => {
+		this.setState({show_upload: true});
+	}
+
+	hideImageUpload = () => {
+		this.setState({show_upload: false});
+	}
+
 	render() {
 		let s = this.state.selscreen;
 		let notification_count = this.state.req_list.length;
@@ -151,7 +161,7 @@ class App extends Component {
 			<div className="App">
 				<FriendsBar name={this.state.user.name} sel={this.state.selscreen === 0 ? this.state.seluser : ""} setUser={this.setUser} loading={this.state.user_list_loading} list={this.state.user_list} />
 				<Credentials ref={instance => { this.credentials = instance; }} setUserInfo={this.setUserInfo} />
-				{/*<ImageUpload />*/}
+				<ImageUpload shown={this.state.show_upload} hideImageUpload={this.hideImageUpload} />
 				<ImageView image={this.state.full_img} shown={this.state.show_full_img} hideImageView={this.hideImageView} />
 				<main>
 					<nav>
@@ -159,7 +169,7 @@ class App extends Component {
 						<span className={s === 2 ? "selected" : ""} onClick={() => this.setScreen(2)}>Downloaded Images</span>
 						<span className={`${has_notifications ? "request-tab" : ""}${s === 3 ? " selected" : ""}`} onClick={() => this.setScreen(3)}>Requests {has_notifications && <div className="notification">{notification_count}</div>}</span>
 						<span className="signout-btn" onClick={this.handleLogOut}>Sign Out</span>
-						<span className="add-btn" onClick={this.showUpload}></span>
+						<span className="add-btn" onClick={this.showImageUpload}></span>
 					</nav>
 					{s === 0 && <OtherImages showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
 					{s === 1 && <MyImages showImageView={this.showImageView} loading={this.state.my_images_loading} gallery={this.state.my_images} />}
