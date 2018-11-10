@@ -50,8 +50,8 @@ $(OBJECTS): build/build/%.o : %.cpp $(HEADERS)
 	mkdir -p $(@D)
 	$(CXX) -I$(INCLUDE_DIR) -I$(COMMON_INCLUDE_DIR) -I$(LIB_INCLUDE_DIR) $(addprefix -I, $(SUBMODULE_INCLUDE_DIRS)) $(CXX_FLAGS) -c -o $@ $< 
 
-$(EXEC): $(OBJECTS) $(LIB_OBJECTS) $(SUBMODULE_FINAL_LIBRARIES)
-	$(CXX) $(addprefix -L, $(SUBMODULE_DIRS)) $(LIBS) $(LINKER_FLAGS) $(OBJECTS) $(addprefix -l, $(SUBMODULE_LINKS)) -o $@
+$(EXEC):  $(LIB_OBJECTS) $(OBJECTS) $(SUBMODULE_FINAL_LIBRARIES)
+	$(CXX) $(LIBS) $(LINKER_FLAGS) $(OBJECTS) $(LIB_OBJECTS) $(addprefix -l, $(SUBMODULE_LINKS)) $(addprefix -L, $(SUBMODULE_DIRS))  -o $@
 
 run:
 	echo '#!/bin/bash' > run

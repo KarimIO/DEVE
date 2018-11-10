@@ -1,0 +1,4 @@
+#!/bin/sh
+make -C app clean
+make -C ADS clean
+git submodule foreach 'make clean || true'
