@@ -3,5 +3,5 @@ git submodule foreach git add .
 git submodule foreach 'git commit -m "$1" || true'
 git add .
 git commit -m "$1"
-git submodule foreach git push
+git submodule foreach 'git push || true'
 git push
