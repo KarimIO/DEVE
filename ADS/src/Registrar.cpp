@@ -48,6 +48,7 @@ JSON Registrar::list() {
         obj["publicKey"] = user.second.publicKey;
         json.push_back(obj);
     }
+    return json;
 }
 
 JSON Registrar::executeRPC(std::string name, JSON arguments) {

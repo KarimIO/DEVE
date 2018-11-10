@@ -3,17 +3,15 @@
 
 #include <signal.h>
 
-#include "deve_ui_server.h"
-#include "UserArbitration.h"
-#include "Constants.h"
-#include "DumpFile.h"
-#include "Connection.h"
-
 #include <Dispatcher.h>
 #include <pistache/endpoint.h>
+#include <DumpFile.h>
+#include <Connection.h>
+
+#include "deve_ui_server.h"
+#include "Constants.h"
 
 using namespace Pistache;
-
 
 RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", REQ_PORT);
 
@@ -24,7 +22,6 @@ void deathRoutine() {
 
 int main(int argc, char *argv[]) {
     // Load here
-#if 0
     if (argc < 2) {
         std::cerr << "ADS address must be provided with invocation." << std::endl;
         exit(64);
@@ -33,8 +30,6 @@ int main(int argc, char *argv[]) {
     auto adsIP = std::string(argv[1]);
 
     std::cout << "Using ADS at " << adsIP << std::endl;
-#endif
-#if 1
 
     auto killThread = std::thread([](){
         std::cout << "(Ctrl+D to exit)" << std::endl;
@@ -54,13 +49,21 @@ int main(int argc, char *argv[]) {
         
         DeveUIServer duis(adsIP);
         std::cout << "[DEVE] Serving REST on port " << REST_PORT << "." << std::endl;
+        duis.reg("finn", "verilog");
+        duis.authenticate("finn", "verilog");
+        auto v = duis.fetchUsers();
+        std::cout << v.dump() << std::endl;
+
+
+
+
         duis.setUpUIServer(addr);
 
     } catch(std::runtime_error &e) {
-        std::cerr << e.what() << "\n";
+        std::cerr << e.what() << std::endl;
+    } catch(const char* e) {
+        std::cerr << e << std::endl;
     }
-
-#endif
 #if 0
     auto rg = RRAD::RequestGenerator("donn");
     auto ua = UserArbitration(adsIP, &rg);

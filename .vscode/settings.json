@@ -63,6 +63,9 @@
         "*.ipp": "cpp",
         "__config": "cpp",
         "__nullptr": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "__tuple": "cpp",
+        "iterator": "cpp",
+        "string": "cpp"
     }
 }

@@ -1,17 +1,17 @@
 
 #include "deve_ui_server.h"
 #include "TweetNACL.h"
+#include "Image.h"
+#include "base64.h"
 
 #include <fstream>
 #include <vector>
-#include <base64.h>
+
 #include <JSON.h>
 
 using namespace Pistache;
-using namespace nlohmann;
 
-DeveUIServer::DeveUIServer(std::string adsIP): adsIP(adsIP) {
-    rg = RRAD::RequestGenerator(INIT_USERNAME);
+DeveUIServer::DeveUIServer(std::string adsIP): adsIP(adsIP), ra(adsIP) {
 }
 
 void DeveUIServer::setUpUIServer(Pistache::Address addr) {
@@ -37,23 +37,21 @@ void DeveUIServer::setupRoutes() {
 }
 
 void DeveUIServer::reg(std::string userName, std::string password) {
-    rg = RRAD::RequestGenerator(userName);
-    crypto_box_keypair(publicKey, privateKey);
-    std::string pubKeyString = base64_encode(publicKey);
-    if (!ua.reg(&rg, password, pubKeyString)) {
+    RRAD::Dispatcher::singleton.setUID(userName);
+    if (!ra.reg(password)) {
         throw "auth.registrationFail";
     }
 }
 
 void DeveUIServer::authenticate(std::string userName, std::string password) {
-    if (!ua.authenticate(&rg, "password")) {
+    RRAD::Dispatcher::singleton.setUID(userName);
+    if (!ra.authenticate(password)) {
         throw "auth.fail";
     }
-
 }
 
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
-    json j = {
+    JSON j = {
         {"success"}
     };
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
@@ -81,27 +79,35 @@ void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistach
     response.send(Pistache::Http::Code::Ok, images.dump());
 }
 
+JSON DeveUIServer::fetchUsers() {
+    JSON returnValue = {};
+    for (auto user: ra.localRegistry) {
+        returnValue[user.first] = user.second.ip;
+    }
+    return returnValue;
+}
+
 void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     response.send(Pistache::Http::Code::Ok, fetchUsers().dump());
 }
 
-json DeveUIServer::fetchUserImages(std::string user) {
-    if (user == "karimah") {
-        return {
-            {
-                {"name", "input"},
-                {"views", 4},
-                {"thumb", fetchUserImage(user, "input_thumb")}
-            }, {
-                {"name", "bee"},
-                {"views", 4},
-                {"thumb", fetchUserImage(user, "bee_thumb")}
-            }
-        };
+JSON DeveUIServer::fetchUserImages(std::string user) {
+    if (user == RRAD::Dispatcher::singleton.getUID()) {
+        auto images = RRAD::Dispatcher::singleton.listMine("Image");
+        JSON array = JSON::array();
+        std::for_each(images.begin(), images.end(), [&](RemoteObject* ro){
+            auto image = (Image*)ro;
+            JSON json;
+            json["id"] = image->id;
+            json["data"] = image->img_json["thumb"];
+            json["views"] = image->img_json["views"];
+            array.push_back(json);
+        });
+        return array;
     }
     else {
-        return json::array();
+        return JSON::array();
     }
 }
 
@@ -124,14 +130,4 @@ std::string DeveUIServer::fetchUserImage(std::string user, std::string image) {
 
     infile.close();
     return base64_encode((const unsigned char *)&buffer[0], length);
-}
-
-json DeveUIServer::fetchUsers() {
-    return {
-        "ahmedghazy",
-        "alikhaled",
-        "amrkadi",
-        "donn",
-        "karimah"
-    };
 }

@@ -6,7 +6,7 @@
 struct JPEG {
     std::string comment;
     
-    static JPEG fromByteVector(const std::vector<uint8>* byteVector);
+    static JPEG fromByteVector(const std::vector<uint8>* byteVector); // I hate passing by reference but in this static hell, can you truly blame me.
     std::vector<uint8> toByteVector();
 
     JPEG();
