@@ -61,7 +61,9 @@ JSON Registrar::executeRPC(std::string name, JSON arguments) {
         reply["result"] = reg(arguments["userName"], arguments["password"], arguments["publicKey"]);
         return reply;
     } else if (name == "list") {
-        return list();
+        JSON reply;
+        reply["result"] = list();
+        return reply;
     }
     throw "rpc.unknownMethod";
 }

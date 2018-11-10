@@ -42,6 +42,7 @@ SUBDIRPATHS = $(shell perl ../split.pl $(SUBMODULE_DIRS) .)
 all: debug
 
 debug: CXX_FLAGS += -g
+debug: CXX_FLAGS_LIB += -g
 debug: $(EXEC) run
 release: $(EXEC) run
 

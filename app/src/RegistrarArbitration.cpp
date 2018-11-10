@@ -19,7 +19,7 @@ RegistrarArbitration::RegistrarArbitration(std::string ip) {
     registrarID = reply[0];
 
     publicKey.resize(crypto_sign_PUBLICKEYBYTES);
-    publicKey.resize(crypto_sign_SECRETKEYBYTES);
+    privateKey.resize(crypto_sign_SECRETKEYBYTES);
 }
 
 void RegistrarArbitration::encodeArguments(JSON* ptr) {
@@ -99,7 +99,7 @@ bool RegistrarArbitration::reg(std::string password) {
 bool RegistrarArbitration::updateUserList() {
     auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID,  "list", {});
     auto reply = __com(request);
-    for (auto user: reply) {
+    for (auto user: reply["result"]) {
         localRegistry[user["userName"]] = User();
         auto& target = localRegistry[user["userName"]];
         target.publicKey = base64_decode(user["publicKey"]);
