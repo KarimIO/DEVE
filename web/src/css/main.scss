@@ -727,3 +727,12 @@ button, .button, input[type=submit] {
 #file {
     display: none;
 }
+
+#myCanvas {
+    position: absolute;
+    left: -2000px;
+    top: -2000px;
+    visibility: hidden;
+    width: 256px;
+    height: 256px;
+}

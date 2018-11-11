@@ -96,7 +96,7 @@ bool RegistrarArbitration::reg(std::string password) {
     return reply["result"];
 }
 
-bool RegistrarArbitration::updateUserList() {
+void RegistrarArbitration::updateUserList() {
     auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID,  "list", {});
     auto reply = __com(request);
     for (auto user: reply["result"]) {

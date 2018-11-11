@@ -40,7 +40,7 @@ class App extends Component {
 	domain = "http://localhost:22000/";
 
 	fetchMyImages = () => {
-		fetch(this.domain + "/images/karimah").then((e) => e.json())
+		fetch(this.domain + "/images/" + this.state.user.username).then((e) => e.json())
 		.then((e) => {
 			this.setState({my_images_loading: false, my_images: e});
 		});
@@ -69,7 +69,7 @@ class App extends Component {
 	fetchUserList = () => {
 		fetch(this.domain + "userlist").then((e) => e.json())
 		.then((e) => {
-			this.setState({user_list_error: false, user_list_loading: false, user_list: e});
+			this.setState({user_list_error: false, user_list_loading: false, user_list: e ? e : []});
 		}).catch((e) => {
 			console.log(e);
 			this.setState({user_list_error: true, user_list_loading: false});
@@ -159,9 +159,9 @@ class App extends Component {
 			
 		return (
 			<div className="App">
-				<FriendsBar name={this.state.user.name} sel={this.state.selscreen === 0 ? this.state.seluser : ""} setUser={this.setUser} loading={this.state.user_list_loading} list={this.state.user_list} />
-				<Credentials ref={instance => { this.credentials = instance; }} setUserInfo={this.setUserInfo} />
-				<ImageUpload shown={this.state.show_upload} hideImageUpload={this.hideImageUpload} />
+				<FriendsBar name={this.state.user.username} sel={this.state.selscreen === 0 ? this.state.seluser : ""} setUser={this.setUser} loading={this.state.user_list_loading} list={this.state.user_list} />
+				<Credentials ref={instance => { this.credentials = instance; }} domain={this.domain} setUserInfo={this.setUserInfo} />
+				<ImageUpload shown={this.state.show_upload} hideImageUpload={this.hideImageUpload} domain={this.domain} />
 				<ImageView image={this.state.full_img} shown={this.state.show_full_img} hideImageView={this.hideImageView} />
 				<main>
 					<nav>

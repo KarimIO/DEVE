@@ -23,11 +23,10 @@ JPEG Image::generateSteganogramJPEG() {
     return example;
 }
 
-Image::Image(std::string title, std::string base64, std::string thumbBase64) {
+Image::Image(std::string base64, std::string thumbBase64) {
     static int counter = 0;
 
     img_json = defaultJSON;
-    img_json["title"] = title;
     img_json["ownerID"] = Dispatcher::singleton.getUID();
     img_json["data"] = base64;
     img_json["thumb"] = thumbBase64;

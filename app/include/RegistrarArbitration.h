@@ -22,7 +22,7 @@ public:
     bool reg(std::string password);
     bool authenticate(std::string password);
     void logout();
-    bool updateUserList();
+    void updateUserList();
     JSON getList();
 
     virtual void encodeArguments(JSON* ptr) override;
