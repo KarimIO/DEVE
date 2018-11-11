@@ -51,6 +51,10 @@ void DeveUIServer::authenticate(std::string userName, std::string password) {
     }
 }
 
+void DeveUIServer::logout() {
+    ra.logout();
+}
+
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     JSON j = {
         {"success"}

@@ -28,6 +28,7 @@ public:
 
     void reg(std::string userName, std::string password);
     void authenticate(std::string userName, std::string password);
+    void logout();
 
     std::string fetchUserImage(std::string user, std::string image);
     nlohmann::json fetchUserImages(std::string user);

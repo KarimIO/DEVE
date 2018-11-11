@@ -120,3 +120,13 @@ bool RegistrarArbitration::authenticate(std::string password) {
 
     return reply["result"];
 }
+
+
+void RegistrarArbitration::logout() {
+    auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID, "__logout",
+        {
+            {"userName", RDS.getUID()},
+        }
+    );
+    auto reply = __com(request);
+}
