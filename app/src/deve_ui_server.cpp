@@ -69,7 +69,7 @@ void DeveUIServer::getUserImage(const Pistache::Rest::Request& request, Pistache
     std::cout << json.dump() << "\n";
 
     try {
-        auto image_b64 = fetchUserImage(json.dump());
+        auto image_b64 = fetchUserImage(json);
         response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
         response.send(Pistache::Http::Code::Ok, image_b64);
     } catch (const char* err) {
@@ -192,7 +192,7 @@ JSON DeveUIServer::fetchUserImages(std::string user) {
     return Image::getList(&ra, user);
 }
 
-JSON DeveUIServer::fetchUserImage(std::string id) {
+JSON DeveUIServer::fetchUserImage(JSON id) {
     return Image::getImage(&ra, id);
 }
 
@@ -203,7 +203,7 @@ JSON DeveUIServer::fetchPendingRequests(std::string id) {
     auto& image = *(Image*)RRAD::Dispatcher::singleton.getObject(id);
     JSON requests = JSON::array({});
     for (int i = 0; i < image.requests.size(); i++){
-        requests.push_back(image.requests.front);
+        //requests.push_back(image.requests.front);
         image.requests.pop();
     }
     return requests;

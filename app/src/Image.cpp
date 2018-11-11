@@ -94,10 +94,10 @@ JSON Image::executeRPC(std::string name, JSON arguments) {
         setAccess(arguments["view_cnt"], arguments["targetUser"]);
         return JSON({});
     } else if (name == "__requestAccess") {
-        requestAccess(arguments["userName"]);
+        requestAccess(arguments["ownerID"]);
         return JSON({});
     } else if (name == "__sendView") {
-        recordView(arguments["userName"]);
+        recordView(arguments["ownerID"]);
         return JSON({});
     } else if (name == "getImage") {
         JSON reply;
@@ -147,7 +147,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
 }
 
 JSON Image::getImage(RegistrarArbitration* ra, JSON id) {
-    auto& owner = id["userName"];
+    auto& owner = id["ownerID"];
     auto self = RDS.getUID();
     auto ptr = (Image*)(RDS.getObject(id));
     if (!ptr) {

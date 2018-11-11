@@ -32,7 +32,7 @@ public:
     bool signIn(std::string userName, std::string password);
     void signOut();
 
-    JSON fetchUserImage(std::string id);
+    JSON fetchUserImage(JSON id);
     JSON fetchPendingRequests(std::string id);
     nlohmann::json fetchUserImages(std::string user);
     nlohmann::json fetchUsers();
