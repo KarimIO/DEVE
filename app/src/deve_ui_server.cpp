@@ -52,16 +52,20 @@ void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http
 }
 
 void DeveUIServer::getDownloadedImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
-    response.send(Pistache::Http::Code::Ok, "DEVE DownloadedImages Reached.");
+    response.send(Pistache::Http::Code::Ok, "DEVE Downloaded Images Reached.");
 }
 
 void DeveUIServer::getUserImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
-    auto user = request.param(":id").as<std::string>();
-    auto image = request.param(":img").as<std::string>();
+    auto id = request.param(":id").as<std::string>();
 
-    auto image_b64 = fetchUserImage(user, image);
-    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-    response.send(Pistache::Http::Code::Ok, image_b64);
+    try {
+        auto image_b64 = fetchUserImage(JSON::parse(id));
+        response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
+        response.send(Pistache::Http::Code::Ok, image_b64);
+    } catch (const char* err) {
+        response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
+        response.send(Pistache::Http::Code::Forbidden, err);
+    }
 }
 
 void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
@@ -89,17 +93,9 @@ void DeveUIServer::postImage(const Pistache::Rest::Request& request, Pistache::H
     response.send(Pistache::Http::Code::Internal_Server_Error, "imageUpload.feel");
 }
 
-JSON DeveUIServer::fetchUsers() {
-    JSON returnValue = {};
-    for (auto user: ra.localRegistry) {
-        returnValue[user.first] = user.second.ip;
-    }
-    return returnValue;
-}
-
 void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-    response.send(Pistache::Http::Code::Ok, fetchUsers().dump());
+    response.send(Pistache::Http::Code::Ok, ra.getList().dump());
 }
 
 void DeveUIServer::handleSignUp(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
@@ -180,28 +176,9 @@ bool DeveUIServer::signIn(std::string userName, std::string password) {
 }
 
 JSON DeveUIServer::fetchUserImages(std::string user) {
-    if (user == RRAD::Dispatcher::singleton.getUID()) {
-        auto images = RRAD::Dispatcher::singleton.listMine("Image");
-        JSON array = JSON::array();
-        std::for_each(images.begin(), images.end(), [&](RemoteObject* ro){
-            auto image = (Image*)ro;
-            JSON json;
-            json["id"] = image->id;
-            json["thumb"] = image->img_json["thumb"];
-            json["views"] = image->img_json["views"];
-            array.push_back(json);
-        });
-        return array;
-    } else {
-        auto listRequest = RRAD::Dispatcher::singleton.listRPC("Image", user);
-        auto ip = ra.localRegistry[user].ip;
-        return RRAD::Dispatcher::singleton.communicateRMI(ip, REQ_PORT, listRequest);
-    }
+    return Image::getList(&ra, user);
 }
 
 JSON DeveUIServer::fetchUserImage(std::string id) {
-    if (RRAD::Dispatcher::singleton.dictionary.find(id)) {
-        
-    }
-    throw "image.notFound";
+    return Image::getImage(&ra, id);
 }

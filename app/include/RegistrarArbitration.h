@@ -4,6 +4,8 @@
 #include <Types.h>
 #include <Dispatcher.h>
 
+#include <optional>
+
 struct User {
     std::string ip;
     std::vector<uint8> publicKey;
@@ -23,7 +25,9 @@ public:
     bool authenticate(std::string password);
     void logout();
     void updateUserList();
+
     JSON getList();
+    std::optional<std::string> getUserIP(std::string userName);
 
     virtual void encodeArguments(JSON* ptr) override;
     virtual void verifyArguments(JSON* ptr) override;

@@ -8,6 +8,7 @@
 
 #include "base64.h"
 #include "JPEG.h"
+#include "RegistrarArbitration.h"
 
 using namespace RRAD;
 
@@ -32,6 +33,7 @@ class Image : public RemoteObject {
     void requestAccess(std::string requester);
 public:
     Image(std::string base64, std::string thumbBase64);
+    Image(JSON id, JSON content, bool owned = true);
 
     JSON id;
     JSON img_json;
@@ -42,6 +44,10 @@ public:
     JSON getJSON();
     std::vector<uint8> getSteganogram();
     std::string getSteganogramBase64();
+    static Image* imageFromSteganogram(JSON id, std::vector<uint8> steganogram);
+
+    static JSON getList(RegistrarArbitration* ra, std::string user);
+    static JSON getImage(RegistrarArbitration* ra, JSON id);
  
     JSON executeRPC(std::string name, JSON arguments) override;
 };

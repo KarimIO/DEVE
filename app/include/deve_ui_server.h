@@ -32,7 +32,7 @@ public:
     bool signIn(std::string userName, std::string password);
     void signOut();
 
-    std::string fetchUserImage(std::string user, std::string image);
+    JSON fetchUserImage(std::string id);
     nlohmann::json fetchUserImages(std::string user);
     nlohmann::json fetchUsers();
     DeveUIServer(std::string adsIP);

@@ -68,6 +68,8 @@
         "iterator": "cpp",
         "string": "cpp",
         "__locale": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "__mutex_base": "cpp",
+        "map": "cpp"
     }
 }

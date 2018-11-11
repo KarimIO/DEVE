@@ -87,7 +87,6 @@ bool RegistrarArbitration::reg(std::string password) {
     std::string pubKeyString = base64_encode(&publicKey[0], crypto_sign_PUBLICKEYBYTES);
     auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID, "register",
         {
-            {"userName", RDS.getUID()},
             {"password", password},
             {"publicKey", pubKeyString}
         }
@@ -99,6 +98,7 @@ bool RegistrarArbitration::reg(std::string password) {
 void RegistrarArbitration::updateUserList() {
     auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID,  "list", {});
     auto reply = __com(request);
+    localRegistry = std::map<std::string, User>();
     for (auto user: reply["result"]) {
         localRegistry[user["userName"]] = User();
         auto& target = localRegistry[user["userName"]];
@@ -107,10 +107,28 @@ void RegistrarArbitration::updateUserList() {
     }
 }
 
+JSON RegistrarArbitration::getList() {
+    updateUserList();
+    JSON returnValue = {};
+    for (auto user: localRegistry) {
+        returnValue[user.first] = user.second.ip;
+    }
+    return returnValue;
+}
+
+std::optional<std::string> RegistrarArbitration::getUserIP(std::string userName) {
+    if (localRegistry.find(userName) == localRegistry.end()) {
+        updateUserList();
+    }
+    if (localRegistry.find(userName) == localRegistry.end()) {
+        return std::nullopt;
+    }
+    return localRegistry[userName].ip;
+}
+
 bool RegistrarArbitration::authenticate(std::string password) {
     auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID, "authenticate",
         {
-            {"userName", RDS.getUID()},
             {"password", password}
         }
     );
@@ -123,10 +141,6 @@ bool RegistrarArbitration::authenticate(std::string password) {
 
 
 void RegistrarArbitration::logout() {
-    auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID, "__logout",
-        {
-            {"userName", RDS.getUID()},
-        }
-    );
+    auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID, "__logout", {});
     auto reply = __com(request);
 }
