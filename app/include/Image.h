@@ -44,7 +44,8 @@ public:
     std::vector<uint8> getSteganogram();
     std::string getSteganogramBase64();
  
-    JSON executeRPC(std::string name, JSON arguments) override;
+    virtual std::string getClassName() override { return "Image"; }
+    virtual JSON executeRPC(std::string name, JSON arguments) override;
 };
 
 #endif //_IMAGE_h
