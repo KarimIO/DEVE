@@ -33,6 +33,7 @@ public:
     void signOut();
 
     JSON fetchUserImage(std::string id);
+    JSON fetchPendingRequests(std::string id);
     nlohmann::json fetchUserImages(std::string user);
     nlohmann::json fetchUsers();
     DeveUIServer(std::string adsIP);

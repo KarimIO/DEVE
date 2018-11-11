@@ -54,6 +54,7 @@ void Image::setAccess(std::string targetUser, uint32 view_cnt) {
 }
 
 void Image::requestAccess(std::string requester) {
+    //why do we need the id?
     Image::requests.push(std::pair(id.dump(), requester));
 }
 
