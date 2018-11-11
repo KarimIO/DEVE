@@ -20,8 +20,9 @@ public: // temp
 public:
     RegistrarArbitration(std::string adsIP);
     bool reg(std::string password);
-    bool updateUserList();
     bool authenticate(std::string password);
+    void logout();
+    void updateUserList();
     JSON getList();
 
     virtual void encodeArguments(JSON* ptr) override;

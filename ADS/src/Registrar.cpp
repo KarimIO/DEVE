@@ -36,6 +36,15 @@ bool Registrar::authenticate(std::string name, std::string password, std::string
     return false;
 }
 
+bool Registrar::logout(std::string name) {
+    if (registry.find(name) != registry.end()) {
+        registry[name].lastIP = std::nullopt;
+        std::cout << "User " << name << " logged off." << std::endl;
+        return true;
+    }
+    return false;
+}
+
 JSON Registrar::list() {
     JSON json = JSON::array();
     for (auto user: registry) {
@@ -56,6 +65,9 @@ JSON Registrar::executeRPC(std::string name, JSON arguments) {
         JSON reply;
         reply["result"] = authenticate(arguments["userName"], arguments["password"], arguments["__RRAD__INTERNAL__senderIP"]);
         return reply;
+    } else if (name == "__logout") {
+        logout(arguments["userName"]);
+        return JSON();
     } else if (name == "register") {
         JSON reply;
         reply["result"] = reg(arguments["userName"], arguments["password"], arguments["publicKey"]);

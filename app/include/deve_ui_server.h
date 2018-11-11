@@ -30,6 +30,7 @@ public:
 
     bool signUp(std::string userName, std::string password);
     bool signIn(std::string userName, std::string password);
+    void signOut();
 
     std::string fetchUserImage(std::string user, std::string image);
     nlohmann::json fetchUserImages(std::string user);

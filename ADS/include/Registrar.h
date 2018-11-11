@@ -15,6 +15,7 @@ struct User {
 
 class Registrar: public RRAD::RemoteObject {
     std::map<std::string, User> registry;
+    bool logout(std::string userName);
     bool authenticate(std::string userName, std::string password, std::string ip);
     bool reg(std::string userName, std::string password, std::string publicKey);
     JSON list();

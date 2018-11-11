@@ -40,6 +40,10 @@ void DeveUIServer::setupRoutes() {
     Routes::Post(router_, "/signin", Routes::bind(&DeveUIServer::handleSignIn, this));
 }
 
+void DeveUIServer::signOut() {
+    ra.logout();
+}
+
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     auto id = RRAD::Dispatcher::singleton.getUID();
 
