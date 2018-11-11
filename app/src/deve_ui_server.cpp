@@ -127,29 +127,16 @@ JSON DeveUIServer::fetchUserImages(std::string user) {
             array.push_back(json);
         });
         return array;
-    }
-    else {
-        return JSON::array();
+    } else {
+        auto listRequest = RRAD::Dispatcher::singleton.listRPC("Image", user);
+        auto ip = ra.localRegistry[user].ip;
+        return RRAD::Dispatcher::singleton.communicateRMI(ip, REQ_PORT, listRequest);
     }
 }
 
-std::string DeveUIServer::fetchUserImage(std::string user, std::string image) {
-    std::string path = "tests/images/" + user + "/" + image + ".jpg";
-    std::cout << "Fetching " << path << "\n";
-    std::ifstream infile(path);
-    if (infile.fail()) {
-        std::cerr << "Failed to get Image.\n";
-        return "";
+JSON DeveUIServer::fetchUserImage(std::string id) {
+    if (RRAD::Dispatcher::singleton.dictionary.find(id)) {
+        
     }
-
-    infile.seekg(0, infile.end);
-    size_t length = infile.tellg();
-    infile.seekg(0, infile.beg);
-
-    std::vector<char> buffer;
-    buffer.resize(length);
-    infile.read((char*)&buffer[0], length);
-
-    infile.close();
-    return base64_encode((const unsigned char *)&buffer[0], length);
+    throw "image.notFound";
 }
