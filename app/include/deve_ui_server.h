@@ -23,14 +23,16 @@ public:
     void getUserImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void postImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
+    void handleSignUp(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
+    void handleSignIn(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     std::shared_ptr<Pistache::Http::Endpoint> http_endpoint_ = NULL;
     Pistache::Rest::Router router_;
 
-    void reg(std::string userName, std::string password);
-    void authenticate(std::string userName, std::string password);
-    void logout();
+    bool signUp(std::string userName, std::string password);
+    bool signIn(std::string userName, std::string password);
+    void signOut();
 
-    std::string fetchUserImage(std::string user, std::string image);
+    JSON fetchUserImage(std::string id);
     nlohmann::json fetchUserImages(std::string user);
     nlohmann::json fetchUsers();
     DeveUIServer(std::string adsIP);

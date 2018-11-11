@@ -8,6 +8,7 @@
 
 #include "base64.h"
 #include "JPEG.h"
+#include "RegistrarArbitration.h"
 
 using namespace RRAD;
 
@@ -16,7 +17,6 @@ wrapper for the JSON containing the user image that should be embedded in
 the comment section of default JPEG
 format:
     {
-        title: ..,
         ownerID: ..,
         views: #,
         thumb: base64_img_data
@@ -32,7 +32,8 @@ class Image : public RemoteObject {
     void recordView(std::string viewer);
     void requestAccess(std::string requester);
 public:
-    Image(std::string title, std::string base64, std::string thumbBase64);
+    Image(std::string base64, std::string thumbBase64);
+    Image(JSON id, JSON content, bool owned = true);
 
     JSON id;
     JSON img_json;
@@ -43,6 +44,10 @@ public:
     JSON getJSON();
     std::vector<uint8> getSteganogram();
     std::string getSteganogramBase64();
+    static Image* imageFromSteganogram(JSON id, std::vector<uint8> steganogram);
+
+    static JSON getList(RegistrarArbitration* ra, std::string user);
+    static JSON getImage(RegistrarArbitration* ra, JSON id);
  
     virtual std::string getClassName() override { return "Image"; }
     virtual JSON executeRPC(std::string name, JSON arguments) override;

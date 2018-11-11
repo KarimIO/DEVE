@@ -49,14 +49,6 @@ int main(int argc, char *argv[]) {
         
         DeveUIServer duis(adsIP);
         std::cout << "[DEVE] Serving REST on port " << REST_PORT << "." << std::endl;
-        duis.reg("ax3ghazy", "lol");
-        duis.authenticate("ax3ghazy", "lol");
-        auto v = duis.fetchUsers();
-        std::cout << v.dump() << std::endl;
-
-
-
-
         duis.setUpUIServer(addr);
 
     } catch(std::runtime_error &e) {

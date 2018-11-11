@@ -66,6 +66,10 @@
         "algorithm": "cpp",
         "__tuple": "cpp",
         "iterator": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "__locale": "cpp",
+        "locale": "cpp",
+        "__mutex_base": "cpp",
+        "map": "cpp"
     }
 }

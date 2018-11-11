@@ -11,12 +11,23 @@ export default class Credentials extends Component {
 	componentWillMount() {
 		// If session exists...
 		// Login
-		/*this.props.setUserInfo({
-			username: this.state.r_username,
-			password: this.state.r_password
-		});
+		fetch(this.props.domain + "checkAuth")
+		.then((e) => {
+			if (e.status >= 300)
+				throw "Invalid";
 
-		this.hide();*/
+			return e.text();
+		})
+		.then((e) => {
+			if (e !== "__DEVE_INIT") {
+				this.props.setUserInfo({
+					username: e
+				});
+				this.hide();
+			}
+		}).catch((e) => {
+			console.log(e);
+		});
 	}
 
 	handleSignUpUsername = (event) => {
@@ -51,28 +62,72 @@ export default class Credentials extends Component {
 		e.preventDefault();
 		this.setState({processing: true});
 
-		setTimeout(() => {
-			this.props.setUserInfo({
-				username: this.state.s_username,
-				name: this.state.s_username
-			});
+		if (this.state.s_username === "" || this.state.s_password === "") {
+			this.setState({processing: false, r_error: true});
+			return;
+		}
+		
+		let b = this.state.s_username + ";" + this.state.s_password;
+
+		fetch(this.props.domain + "signin", {
+			method: "POST",
+			body: b
+		})
+		.then((e) => {
+			if (e.status >= 300)
+				throw "Invalid";
+
+			return e.text();
+		})
+		.then((e) => {
+			console.log(e);
 			
+			this.setState({processing: false, r_error: false});
+			this.props.setUserInfo({
+				username: this.state.s_username
+			});
 			this.hide();
-		}, 700);
+		}).catch((e) => {
+			console.log(e);
+			
+			this.setState({processing: false, r_error: true});
+		});
 	}
 
 	handleSignUp = (e) => {
 		e.preventDefault();
 		this.setState({processing: true});
 
-		setTimeout(() => {
-			this.props.setUserInfo({
-				username: this.state.r_username,
-				name: this.state.r_fullname
-			});
+		if (this.state.r_username === "" || this.state.r_password === "") {
+			this.setState({processing: false, r_error: true});
+			return;
+		}
+		
+		let b = this.state.r_username + ";" + this.state.r_password;
 
+		fetch(this.props.domain + "signup", {
+			method: "POST",
+			body: b
+		})
+		.then((e) => {
+			if (e.status >= 300)
+				throw "Invalid";
+
+			return e.text();
+		})
+		.then((e) => {
+			console.log(e);
+			
+			this.setState({processing: false, r_error: false});
+			this.props.setUserInfo({
+				username: this.state.r_username
+			});
 			this.hide();
-		}, 700);
+		}).catch((e) => {
+			console.log(e);
+			
+			this.setState({processing: false, r_error: true});
+		});
 	}
 	
 	logOut = () => {
@@ -89,7 +144,6 @@ export default class Credentials extends Component {
 							<form onSubmit={this.handleSignUp}>
 								<h1>Sign up with <span><span>D</span>EVE</span></h1>
 								<div className="tagline">Have an account? <span onClick={() => this.setSignState(false)}>Sign In</span></div>
-								<Input label="Full Name" placeholder="Full Name" value={this.state.r_fullname} onChange={this.handleSignUpFullname} type="text" />
 								<Input label="Username" placeholder="Username" value={this.state.r_username} onChange={this.handleSignUpUsername} type="text" />
 								<Password label="Password" placeholder="Password" value={this.state.r_password} onChange={this.handleSignUpPassword} type="password" />
 								<input type="submit" value="Sign In" />

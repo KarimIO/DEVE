@@ -33,20 +33,82 @@ export default class ImageUpload extends Component {
 		let files = this.state.files;
 		
 		accepted.forEach(file => {
+
 			var file_type = file["type"];
 			++i;
 
 			if (valid_types.includes(file_type)) {
 				const reader = new FileReader();
 				reader.onload = (e) => {
-					files.push(e.target.result);
+					let b64 = e.target.result;
+					files.push(b64);
+					
+					var canvas = document.getElementById('myCanvas');
+					var context = canvas.getContext('2d');
+					var imageObj = new Image();
+			  
+					imageObj.onload = function() {
+						let m = Math.min(imageObj.width, imageObj.height);
+						
+						// draw cropped image
+						var sourceX = 0;
+						var sourceY = 0;
+				
+						context.drawImage(imageObj, sourceX, sourceY, m, m, 0, 0, canvas.width, canvas.height);
+						let dataUrl = canvas.toDataURL('image/jpeg');
+						
+						let p = b64.indexOf(",");
+						b64 = b64.substr(p+1);
 
-					console.log(e.target.result);
+						p = dataUrl.indexOf(",");
+						dataUrl = dataUrl.substr(p+1);
 
-					/*fetch("/music/pk/altes-kamuffel.flac")
-						.then(res => this.consume(res.body))
-						.then(() => console.log("consumed the entire body without keeping the whole thing in memory!"))
-						.catch((e) => console.error("something went wrong", e))*/
+						let payload = b64 + ";" + dataUrl;
+
+						fetch(me.props.domain + "image", {
+							method: "POST",
+							body: payload
+						})
+						.then((e) => {
+							if (e.status >= 300)
+								throw "Invalid";
+				
+							return e.text();
+						})
+						.then((e) => {
+							console.log(e);
+						}).catch((e) => {
+							console.log(e);
+							
+							this.setState({processing: false, r_error: true});
+						});
+					};
+					imageObj.src=b64;
+
+
+					/*fetch(this.domain + "image", {
+						method: "POST",
+						body: b64
+					})
+					.then((e) => {
+						if (e.status >= 300)
+							throw "Invalid";
+			
+						return e.text();
+					})
+					.then((e) => {
+						console.log(e);
+						
+						this.setState({processing: false, r_error: false});
+						this.props.setUserInfo({
+							username: this.state.s_username
+						});
+						this.hide();
+					}).catch((e) => {
+						console.log(e);
+						
+						this.setState({processing: false, r_error: true});
+					});*/
 					
 					if (i === size) {
 						me.setState({files: files});
@@ -63,6 +125,7 @@ export default class ImageUpload extends Component {
 	render() {
 		return (
 			<div className={`image-upload${this.props.shown ? "" : " hide"}`}>
+				<canvas id="myCanvas"></canvas>
 				<div className="close" onClick={this.props.hideImageUpload}></div>
 				<Dropzone className="uploadfield" onDrop={this.handleDrop}>
 					{this.state.files.length === 0 && <div id="middle">Drag and Drop files here, or click the area, to upload.</div>}
