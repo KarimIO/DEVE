@@ -78,6 +78,8 @@ void DeveUIServer::getUserImage(const Pistache::Rest::Request& request, Pistache
     }
 }
 
+
+
 void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     auto user = request.param(":id").as<std::string>();
 
@@ -180,6 +182,7 @@ bool DeveUIServer::signUp(std::string userName, std::string password) {
     return r;
 }
 
+
 bool DeveUIServer::signIn(std::string userName, std::string password) {
     RRAD::Dispatcher::singleton.setUID(userName);
     return ra.authenticate(password);
@@ -191,4 +194,17 @@ JSON DeveUIServer::fetchUserImages(std::string user) {
 
 JSON DeveUIServer::fetchUserImage(std::string id) {
     return Image::getImage(&ra, id);
+}
+
+JSON DeveUIServer::fetchPendingRequests(std::string id) {
+    JSON idObj(id);
+    if (idObj["ownerID"] != RRAD::Dispatcher::singleton.getUID())
+        throw "image.not.owned";
+    auto& image = *(Image*)RRAD::Dispatcher::singleton.getObject(id);
+    JSON requests = JSON::array({});
+    for (int i = 0; i < image.requests.size(); i++){
+        requests.push_back(image.requests.front);
+        image.requests.pop();
+    }
+    return requests;
 }
