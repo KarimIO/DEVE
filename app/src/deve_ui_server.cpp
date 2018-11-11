@@ -33,7 +33,7 @@ void DeveUIServer::setupRoutes() {
     Routes::Get(router_, "/checkAuth", Routes::bind(&DeveUIServer::doAuth, this));
     Routes::Get(router_, "/downloaded", Routes::bind(&DeveUIServer::getDownloadedImages, this));
     Routes::Get(router_, "/images/:id", Routes::bind(&DeveUIServer::getUserImages, this));
-    Routes::Get(router_, "/images/:id/:img", Routes::bind(&DeveUIServer::getUserImage, this));
+    Routes::Get(router_, "/image/:ownerID/:id/:time", Routes::bind(&DeveUIServer::getUserImage, this));
     Routes::Get(router_, "/userlist", Routes::bind(&DeveUIServer::getUserList, this));
     Routes::Post(router_, "/image", Routes::bind(&DeveUIServer::postImage, this));
     Routes::Post(router_, "/signup", Routes::bind(&DeveUIServer::handleSignUp, this));
@@ -56,10 +56,20 @@ void DeveUIServer::getDownloadedImages(const Pistache::Rest::Request& request, P
 }
 
 void DeveUIServer::getUserImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
+    auto owner = request.param(":ownerID").as<std::string>();
     auto id = request.param(":id").as<std::string>();
+    auto time = request.param(":time").as<uint32>();
+
+    JSON json;
+    json["ownerID"] = owner;
+    json["unixTimestamp"] = time;
+    json["id"] = id;
+    json["class"] = "Image";
+
+    std::cout << json.dump() << "\n";
 
     try {
-        auto image_b64 = fetchUserImage(JSON::parse(id));
+        auto image_b64 = fetchUserImage(json.dump());
         response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
         response.send(Pistache::Http::Code::Ok, image_b64);
     } catch (const char* err) {

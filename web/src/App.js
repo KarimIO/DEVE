@@ -128,7 +128,7 @@ class App extends Component {
 
 	showImageView = (data) => {
 		let me = this;
-		fetch(this.domain + "images/" + "karimah" + "/" + data).then((e) => {return e.text()})
+		fetch(this.domain + "image/" + data.ownerID + "/" + data.id + "/" + data.unixTimestamp).then((e) => {return e.text()})
 		.then((e) => {
 			console.log(e);
 			me.setState({show_full_img: true, full_img: e});

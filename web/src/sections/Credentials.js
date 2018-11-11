@@ -140,19 +140,19 @@ export default class Credentials extends Component {
 				<div className="side"></div>
                 <div className="main">
 					<fieldset disabled={this.state.processing}>
-						<div className={`credentials-container${this.state.show_register ? "" : " hide"}`}>
+						<div className={`credentials-container${this.state.show_register ? " hide" : ""}`}>
 							<form onSubmit={this.handleSignUp}>
 								<h1>Sign up with <span><span>D</span>EVE</span></h1>
-								<div className="tagline">Have an account? <span onClick={() => this.setSignState(false)}>Sign In</span></div>
+								<div className="tagline">Have an account? <span onClick={() => this.setSignState(true)}>Sign In</span></div>
 								<Input label="Username" placeholder="Username" value={this.state.r_username} onChange={this.handleSignUpUsername} type="text" />
 								<Password label="Password" placeholder="Password" value={this.state.r_password} onChange={this.handleSignUpPassword} type="password" />
 								<input type="submit" value="Sign In" />
 							</form>
 						</div>
-						<div className={`credentials-container${this.state.show_register ? " hide" : ""}`}>
+						<div className={`credentials-container${this.state.show_register ? "" : " hide"}`}>
 							<form onSubmit={this.handleSignIn}>
 								<h1>Sign in to <span><span>D</span>EVE</span></h1>
-								<div className="tagline">Don't have an account? <span onClick={() => this.setSignState(true)}>Sign Up</span></div>
+								<div className="tagline">Don't have an account? <span onClick={() => this.setSignState(false)}>Sign Up</span></div>
 								<Input label="Username" placeholder="Username" value={this.state.s_username} onChange={this.handleSignInUsername} type="text" />
 								<Password label="Password" placeholder="Password" value={this.state.s_password} onChange={this.handleSignInPassword} type="password" />
 								<input type="submit" value="Sign In" />
