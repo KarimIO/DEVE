@@ -16,7 +16,6 @@ wrapper for the JSON containing the user image that should be embedded in
 the comment section of default JPEG
 format:
     {
-        title: ..,
         ownerID: ..,
         views: #,
         thumb: base64_img_data
@@ -32,7 +31,7 @@ class Image : public RemoteObject {
     void recordView(std::string viewer);
     void requestAccess(std::string requester);
 public:
-    Image(std::string title, std::string base64, std::string thumbBase64);
+    Image(std::string base64, std::string thumbBase64);
 
     JSON id;
     JSON img_json;

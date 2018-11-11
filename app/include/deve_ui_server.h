@@ -23,11 +23,13 @@ public:
     void getUserImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void postImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
+    void handleSignUp(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
+    void handleSignIn(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     std::shared_ptr<Pistache::Http::Endpoint> http_endpoint_ = NULL;
     Pistache::Rest::Router router_;
 
-    void reg(std::string userName, std::string password);
-    void authenticate(std::string userName, std::string password);
+    bool signUp(std::string userName, std::string password);
+    bool signIn(std::string userName, std::string password);
 
     std::string fetchUserImage(std::string user, std::string image);
     nlohmann::json fetchUserImages(std::string user);

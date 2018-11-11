@@ -11,7 +11,7 @@ export default class MyImages extends Component {
 							<div>
 								<span>
 									<i>{e.views}</i> view{e.views !== 1 && "s"}
-									<button onClick={(event) => this.props.showImageView(e.name)}>Show</button>
+									<button onClick={(event) => this.props.showImageView(e.id)}>Show</button>
 								</span>
 							</div>
 						</div>;
