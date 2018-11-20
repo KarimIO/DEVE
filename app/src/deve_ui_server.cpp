@@ -91,7 +91,12 @@ void DeveUIServer::serveCLI() {
                 std::cerr << "nope: " << 1 << std::endl;
             }
 
-            std::cout << fetchUserImages(args[1]);
+            try {
+                std::cout << fetchUserImages(args[1]);
+            } catch (std::exception& e){
+                if (e.what() == "conn.handshake.timeout")
+                    std::cerr << "can't reach destination" << std::endl;
+            }
         } else if (func == "getimg") {
             if (args.size() < 1) {
                 std::cerr << "nope: " << 1 << std::endl;
