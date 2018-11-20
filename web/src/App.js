@@ -43,6 +43,8 @@ class App extends Component {
 		fetch(this.domain + "/images/" + this.state.user.username).then((e) => e.json())
 		.then((e) => {
 			this.setState({my_images_loading: false, my_images: e});
+		}).catch((e) => {
+			alert(e.text());
 		});
 	}
 
@@ -51,7 +53,7 @@ class App extends Component {
 		.then((e) => {
 			this.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		}).catch((e) => {
-			console.log(e);
+			alert(e.text());
 			this.setState({other_images_error: true, other_images_loading: false});
 		});
 	}
@@ -61,7 +63,7 @@ class App extends Component {
 		.then((e) => {
 			this.setState({downloaded_images_error: false, download_images_loading: false, download_images: e});
 		}).catch((e) => {
-			console.log(e);
+			alert(e.text());
 			this.setState({downloaded_images_error: true, download_images_loading: false});
 		});
 	}
@@ -71,7 +73,7 @@ class App extends Component {
 		.then((e) => {
 			this.setState({user_list_error: false, user_list_loading: false, user_list: e ? e : []});
 		}).catch((e) => {
-			console.log(e);
+			alert(e.text());
 			this.setState({user_list_error: true, user_list_loading: false});
 		});
 	}
@@ -81,7 +83,7 @@ class App extends Component {
 		.then((e) => {
 			this.setState({req_error: false, req_loading: false, req_list: e.requests, ongoing_list: e.ongoing});
 		}).catch((e) => {
-			console.log(e);
+			alert(e.text());
 			this.setState({req_error: true, req_loading: false});
 		});
 	}
@@ -91,7 +93,7 @@ class App extends Component {
 			// If we're looking at a different user's images, display them.
 			this.setState({selscreen: 0, seluser: u});
 			this.setState({other_images_loading: true});
-			setTimeout(this.fetchOtherImages, 1000);
+			this.fetchOtherImages();
 		}
 		else {
 			// If not just load the correct subscreen
@@ -135,7 +137,7 @@ class App extends Component {
 			//this.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		})
 		.then((e) => {}).catch((e) => {
-			console.log(e);
+			alert(e.text());
 			//this.setState({other_images_error: true, other_images_loading: false});
 		});
 	}

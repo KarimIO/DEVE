@@ -138,10 +138,13 @@ void DeveUIServer::signOut() {
 }
 
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
-    auto id = RRAD::Dispatcher::singleton.getUID();
-
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-    response.send(Pistache::Http::Code::Ok, id);
+    try {
+        auto id = RRAD::Dispatcher::singleton.getUID();
+        response.send(Pistache::Http::Code::Ok, id);
+    } catch (const char* err) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, err);
+    }
 }
 
 void DeveUIServer::getDownloadedImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
@@ -160,14 +163,13 @@ void DeveUIServer::getUserImage(const Pistache::Rest::Request& request, Pistache
     json["class"] = "Image";
 
     std::cout << json.dump() << "\n";
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
 
     try {
         auto image_b64 = fetchUserImage(json);
-        response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
         response.send(Pistache::Http::Code::Ok, image_b64);
     } catch (const char* err) {
-        response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-        response.send(Pistache::Http::Code::Forbidden, err);
+        response.send(Pistache::Http::Code::Internal_Server_Error, err);
     }
 }
 
@@ -175,32 +177,50 @@ void DeveUIServer::getUserImage(const Pistache::Rest::Request& request, Pistache
 
 void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     auto user = request.param(":id").as<std::string>();
-
-    auto images = fetchUserImages(user);
+    
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-    response.send(Pistache::Http::Code::Ok, images.dump());
+
+    try {
+        auto images = fetchUserImages(user);
+        response.send(Pistache::Http::Code::Ok, images.dump());
+    } catch (const char* err) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, err);
+    }
 }
 
 void DeveUIServer::postImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
-    auto body = request.body();
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
+    
+    try {
+        auto body = request.body();
 
-    auto found = body.find(';');
-    if (found != std::string::npos) {
-        auto img = body.substr(0, found);
-        auto thumb = body.substr(found + 1, body.size() - found - 1);
+        auto found = body.find(';');
+        if (found != std::string::npos) {
+            auto img = body.substr(0, found);
+            auto thumb = body.substr(found + 1, body.size() - found - 1);
 
-        new Image(img, thumb);
+            new Image(img, thumb);
 
-        response.send(Pistache::Http::Code::Ok, "imageUpload.succ");
-        return;
+            response.send(Pistache::Http::Code::Ok, "imageUpload.succ");
+            return;
+        }
+        
+        throw "Invalid Input";
+    } catch (const char* err) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, err);
     }
-
-    response.send(Pistache::Http::Code::Internal_Server_Error, "imageUpload.feel");
 }
 
 void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-    response.send(Pistache::Http::Code::Ok, ra.getList().dump());
+    try {
+        auto list = ra.getList();
+        auto uid = RRAD::Dispatcher::singleton.getUID();
+        list.erase(uid);
+        response.send(Pistache::Http::Code::Ok, list.dump());
+    } catch (const char *e) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, e);
+    }
 }
 
 void DeveUIServer::handleSignUp(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
@@ -226,7 +246,7 @@ void DeveUIServer::handleSignUp(const Pistache::Rest::Request& request, Pistache
         }
     }
     else {
-        response.send(Pistache::Http::Code::No_Content, "auth.notWorking");
+        response.send(Pistache::Http::Code::No_Content, "auth.invalidInput");
     }
 }
 
@@ -257,7 +277,7 @@ void DeveUIServer::handleSignIn(const Pistache::Rest::Request& request, Pistache
         }
     }
     else {
-        response.send(Pistache::Http::Code::No_Content, "auth.notWorking");
+        response.send(Pistache::Http::Code::No_Content, "auth.invalidInput");
     }
 }
 
