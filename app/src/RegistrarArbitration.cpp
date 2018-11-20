@@ -103,7 +103,11 @@ void RegistrarArbitration::updateUserList() {
         localRegistry[user["userName"]] = User();
         auto& target = localRegistry[user["userName"]];
         target.publicKey = base64_decode(user["publicKey"]);
-        target.ip = user["ip"];
+        if (user["ip"].is_null()) {
+            target.ip = std::nullopt;
+        } else {
+            target.ip = user["ip"];
+        }
     }
 }
 
@@ -111,7 +115,7 @@ JSON RegistrarArbitration::getList() {
     updateUserList();
     JSON returnValue = {};
     for (auto user: localRegistry) {
-        returnValue[user.first] = user.second.ip;
+        returnValue[user.first] = user.second.ip.has_value() ? user.second.ip.value() : nullptr;
     }
     return returnValue;
 }

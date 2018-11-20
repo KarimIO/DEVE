@@ -7,7 +7,7 @@
 #include <optional>
 
 struct User {
-    std::string ip;
+    std::optional<std::string> ip;
     std::vector<uint8> publicKey;
 };
 

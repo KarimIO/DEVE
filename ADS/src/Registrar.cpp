@@ -2,6 +2,7 @@
 #include "Constants.h"
 
 #include <iostream>
+#include <cstddef>
 #include <sys/time.h>
 
 Registrar::Registrar() {
@@ -48,12 +49,9 @@ bool Registrar::logout(std::string name) {
 JSON Registrar::list() {
     JSON json = JSON::array();
     for (auto user: registry) {
-        if (!user.second.lastIP.has_value()) {
-            continue;
-        }
         JSON obj;
         obj["userName"] = user.first;
-        obj["ip"] = user.second.lastIP.value();
+        obj["ip"] = user.second.lastIP.has_value() ? user.second.lastIP.value : nullptr;
         obj["publicKey"] = user.second.publicKey;
         json.push_back(obj);
     }
