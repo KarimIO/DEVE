@@ -86,7 +86,13 @@ void DeveUIServer::serveCLI() {
             auto thumb = ""; //meh
             new Image(img, thumb);
             std::cout << "Image created" << std::endl;
-        } else if (func == "imgsof") {
+        } else if (func == "lsimg") {
+            if (args.size() < 1) {
+                std::cerr << "nope: " << 1 << std::endl;
+            }
+
+            std::cout << fetchUserImages(args[1]);
+        } else if (func == "getimg") {
             if (args.size() < 1) {
                 std::cerr << "nope: " << 1 << std::endl;
             }

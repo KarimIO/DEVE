@@ -40,6 +40,8 @@ Image::Image(std::string base64, std::string thumbBase64) {
     id["id"] = counter++;
     id["class"] = "Image";
 
+    std::cout << "Saving '" << id.dump() << "'" << std::endl;
+
     RDS.registerObject(id, this);
 }
 
@@ -149,6 +151,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
 
 JSON Image::getImage(RegistrarArbitration* ra, JSON id) {
     auto& owner = id["ownerID"];
+    std::cout << "Fetching '" << id.dump() << "'..." << std::endl;
     auto self = RDS.getUID();
     auto ptr = (Image*)(RDS.getObject(id));
     if (!ptr) {
