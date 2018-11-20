@@ -8,16 +8,18 @@ export default class Credentials extends Component {
 		this.state = {display: true, r_username: "", r_fullname: "", r_password: "", s_username: "", s_password: "", show_register: false, processing: false};
 	}
 
+	handleErrors = (response) => {
+		if (!response.ok) {
+			throw Error(response.statusText);
+		}
+		return response.text();
+	}
+
 	componentWillMount() {
 		// If session exists...
 		// Login
 		fetch(this.props.domain + "checkAuth")
-		.then((e) => {
-			if (e.status >= 300)
-				throw "Invalid";
-
-			return e.text();
-		})
+		.then(this.handleErrors)
 		.then((e) => {
 			if (e !== "__DEVE_INIT") {
 				this.props.setUserInfo({
@@ -26,6 +28,7 @@ export default class Credentials extends Component {
 				this.hide();
 			}
 		}).catch((e) => {
+			alert(e);
 			console.log(e);
 		});
 	}
@@ -73,12 +76,7 @@ export default class Credentials extends Component {
 			method: "POST",
 			body: b
 		})
-		.then((e) => {
-			if (e.status >= 300)
-				throw "Invalid";
-
-			return e.text();
-		})
+		.then(this.handleErrors)
 		.then((e) => {
 			console.log(e);
 			
@@ -88,6 +86,7 @@ export default class Credentials extends Component {
 			});
 			this.hide();
 		}).catch((e) => {
+			alert(e);
 			console.log(e);
 			
 			this.setState({processing: false, r_error: true});
@@ -105,28 +104,26 @@ export default class Credentials extends Component {
 		
 		let b = this.state.r_username + ";" + this.state.r_password;
 
+		let me = this;
+
 		fetch(this.props.domain + "signup", {
 			method: "POST",
 			body: b
 		})
-		.then((e) => {
-			if (e.status >= 300)
-				throw "Invalid";
-
-			return e.text();
-		})
+		.then(this.handleErrors)
 		.then((e) => {
 			console.log(e);
 			
-			this.setState({processing: false, r_error: false});
-			this.props.setUserInfo({
+			me.setState({processing: false, r_error: false});
+			me.props.setUserInfo({
 				username: this.state.r_username
 			});
-			this.hide();
+			me.hide();
 		}).catch((e) => {
 			console.log(e);
+			alert(e);
 			
-			this.setState({processing: false, r_error: true});
+			me.setState({processing: false, r_error: true});
 		});
 	}
 	
