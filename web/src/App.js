@@ -54,9 +54,11 @@ class App extends Component {
 	domain = "http://localhost:22000/";
 
 	fetchMyImages = () => {
+		let me = this;
+
 		fetch(this.domain + "/images/" + this.state.user.username).then(this.handleErrorsJson)
 		.then((e) => {
-			this.setState({my_images_loading: false, my_images: e});
+			me.setState({my_images_loading: false, my_images: e});
 		}).catch((e) => {
 			alert(e);
 			console.log(e);
@@ -64,24 +66,28 @@ class App extends Component {
 	}
 
 	fetchOtherImages = (usr = this.state.seluser) => {
+		let me = this;
+
 		fetch(this.domain + "/images/" + usr).then(this.handleErrorsJson)
 		.then((e) => {
-			this.setState({other_images_error: false, other_images_loading: false, other_images: e});
+			me.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		}).catch((e) => {
 			alert(e);
 			console.log(e);
-			this.setState({other_images_error: true, other_images_loading: false});
+			me.setState({other_images_error: true, other_images_loading: false});
 		});
 	}
 
 	fetchDownloadedImages = () => {
+		let me = this;
+		
 		fetch("/server/downloaded.json").then(this.handleErrorsJson)
 		.then((e) => {
-			this.setState({downloaded_images_error: false, download_images_loading: false, download_images: e});
+			me.setState({downloaded_images_error: false, download_images_loading: false, download_images: e});
 		}).catch((e) => {
 			alert(e);
 			console.log(e);
-			this.setState({downloaded_images_error: true, download_images_loading: false});
+			me.setState({downloaded_images_error: true, download_images_loading: false});
 		});
 	}
 
@@ -92,18 +98,20 @@ class App extends Component {
 		}).catch((e) => {
 			alert(e);
 			console.log(e);
-			this.setState({user_list_error: true, user_list_loading: false});
+			me.setState({user_list_error: true, user_list_loading: false});
 		});
 	}
 
 	fetchRequests = () => {
+		let me = this;
+		
 		fetch("/server/requests.json").then(this.handleErrorsJson)
 		.then((e) => {
-			this.setState({req_error: false, req_loading: false, req_list: e.requests, ongoing_list: e.ongoing});
+			me.setState({req_error: false, req_loading: false, req_list: e.requests, ongoing_list: e.ongoing});
 		}).catch((e) => {
 			alert(e);
 			console.log(e);
-			this.setState({req_error: true, req_loading: false});
+			me.setState({req_error: true, req_loading: false});
 		});
 	}
 
@@ -137,10 +145,10 @@ class App extends Component {
 			console.log("Error:", e);
 		});*/
 
-		setTimeout(this.fetchMyImages, 1000);
-		setTimeout(this.fetchDownloadedImages, 1000);
-		setTimeout(this.fetchUserList, 400);
-		setTimeout(this.fetchRequests, 500);
+		this.fetchMyImages();
+		this.fetchDownloadedImages();
+		this.fetchUserList();
+		this.fetchRequests();
 	}
 
 	handleLogOut = () => {
@@ -155,7 +163,7 @@ class App extends Component {
 			me.setState({show_full_img: true, full_img: e});
 			//this.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		})
-		.then((e) => {}).catch((e) => {
+		.catch((e) => {
 			alert(e);
 			console.log(e);
 			//this.setState({other_images_error: true, other_images_loading: false});
