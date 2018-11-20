@@ -92,6 +92,8 @@ class App extends Component {
 	}
 
 	fetchUserList = () => {
+		let me = this;
+		
 		fetch(this.domain + "userlist").then(this.handleErrorsJson)
 		.then((e) => {
 			this.setState({user_list_error: false, user_list_loading: false, user_list: e ? e : []});
