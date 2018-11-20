@@ -160,7 +160,7 @@ void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http
 
 void DeveUIServer::getDownloadedImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-    
+
     try {
         response.send(Pistache::Http::Code::Ok, "DEVE Downloaded Images Reached.");
     } catch (const char* err) {
@@ -231,7 +231,10 @@ void DeveUIServer::postImage(const Pistache::Rest::Request& request, Pistache::H
 void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     try {
-        response.send(Pistache::Http::Code::Ok, ra.getList().dump());
+        auto id = RRAD::Dispatcher::singleton.getUID();
+        auto list = ra.getList();
+        list.erase(id);
+        response.send(Pistache::Http::Code::Ok, list.dump());
     } catch (const char* err) {
         response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
         response.send(Pistache::Http::Code::Forbidden, err);

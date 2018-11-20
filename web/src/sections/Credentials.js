@@ -10,7 +10,7 @@ export default class Credentials extends Component {
 
 	handleErrors = (response) => {
 		if (!response.ok) {
-			throw Error(response.statusText);
+			throw Error(response.text());
 		}
 		return response.text();
 	}

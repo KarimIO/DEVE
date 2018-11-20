@@ -63,8 +63,8 @@ class App extends Component {
 		});
 	}
 
-	fetchOtherImages = () => {
-		fetch(this.domain + "/images/" + this.state.seluser).then(this.handleErrorsJson)
+	fetchOtherImages = (usr = this.state.seluser) => {
+		fetch(this.domain + "/images/" + usr).then(this.handleErrorsJson)
 		.then((e) => {
 			this.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		}).catch((e) => {
@@ -112,7 +112,7 @@ class App extends Component {
 			// If we're looking at a different user's images, display them.
 			this.setState({selscreen: 0, seluser: u});
 			this.setState({other_images_loading: true});
-			this.fetchOtherImages();
+			this.fetchOtherImages(u);
 		}
 		else {
 			// If not just load the correct subscreen
