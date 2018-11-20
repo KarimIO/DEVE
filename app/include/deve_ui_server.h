@@ -36,6 +36,7 @@ public:
     JSON fetchPendingRequests(std::string id);
     nlohmann::json fetchUserImages(std::string user);
     nlohmann::json fetchUsers();
+    void serveCLI();
     DeveUIServer(std::string adsIP);
     void setUpUIServer(Pistache::Address addr);
     void start();

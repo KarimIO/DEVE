@@ -127,8 +127,8 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
         }
         auto idList = RDS.communicateRMI(ip.value(), REQ_PORT, listRequest);
         for (auto id: idList) {
-            auto rmi = RDS.rmi("Image", id["ownerID"], id, "getImage", {});
-            auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, rmi);
+            auto rmiReqMsg = RDS.rmiReqMsg("Image", id["ownerID"], id, "getImage", {});
+            auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
             if (reply.find("error") != reply.end()) {
                 std::cout << "[DEVE] Skipping deleted image " << id.dump() << "..." << std::endl;
                 continue;
@@ -158,7 +158,7 @@ JSON Image::getImage(RegistrarArbitration* ra, JSON id) {
         return image.img_json["data"];
     }
     if (image.img_json["access"][self] > 0) {
-        auto request = RDS.rmi("Image", owner, id, "__sendView", {});
+        auto request = RDS.rmiReqMsg("Image", owner, id, "__sendView", {});
         auto ip = ra->getUserIP(owner);
         if (!ip.has_value()) {
             throw "user.doesNotExist";

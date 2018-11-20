@@ -15,10 +15,6 @@ using namespace Pistache;
 
 RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", REQ_PORT);
 
-void deathRoutine() {
-    // Save here
-    exit(0);
-}
 
 int main(int argc, char *argv[]) {
     // Load here
@@ -31,6 +27,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Using ADS at " << adsIP << std::endl;
 
+    /*
     auto killThread = std::thread([](){
         std::cout << "(Ctrl+D to exit)" << std::endl;
         for(;;) {
@@ -42,6 +39,7 @@ int main(int argc, char *argv[]) {
         }
     });
     killThread.detach();
+    */
 
     try {
         Port port(REST_PORT);
@@ -56,6 +54,7 @@ int main(int argc, char *argv[]) {
     } catch(const char* e) {
         std::cerr << e << std::endl;
     }
+
 #if 0
     auto rg = RRAD::RequestGenerator("donn");
     auto ua = UserArbitration(adsIP, &rg);

@@ -85,7 +85,7 @@ bool RegistrarArbitration::reg(std::string password) {
     RDS.cm = this;
 
     std::string pubKeyString = base64_encode(&publicKey[0], crypto_sign_PUBLICKEYBYTES);
-    auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID, "register",
+    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID, "register",
         {
             {"password", password},
             {"publicKey", pubKeyString}
@@ -96,7 +96,7 @@ bool RegistrarArbitration::reg(std::string password) {
 }
 
 void RegistrarArbitration::updateUserList() {
-    auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID,  "list", {});
+    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID,  "list", {});
     auto reply = __com(request);
     localRegistry = std::map<std::string, User>();
     for (auto user: reply["result"]) {
@@ -127,7 +127,7 @@ std::optional<std::string> RegistrarArbitration::getUserIP(std::string userName)
 }
 
 bool RegistrarArbitration::authenticate(std::string password) {
-    auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID, "authenticate",
+    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID, "authenticate",
         {
             {"password", password}
         }
@@ -141,6 +141,6 @@ bool RegistrarArbitration::authenticate(std::string password) {
 
 
 void RegistrarArbitration::logout() {
-    auto request = RDS.rmi("Registrar", ADS_USERNAME, registrarID, "__logout", {});
+    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID, "__logout", {});
     auto reply = __com(request);
 }
