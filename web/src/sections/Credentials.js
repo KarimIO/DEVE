@@ -110,12 +110,7 @@ export default class Credentials extends Component {
 			method: "POST",
 			body: b
 		})
-		.then((e) => {
-			if (e.status >= 300)
-				throw e.text();
-
-			return e.text();
-		})
+		.then(this.handleErrors)
 		.then((e) => {
 			console.log(e);
 			

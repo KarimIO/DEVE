@@ -37,53 +37,72 @@ class App extends Component {
 		}
 	}
 
+	handleErrorsJson = (response) => {
+		if (!response.ok) {
+			throw Error(response.statusText);
+		}
+		return response.json();
+	}
+
+	handleErrorsText = (response) => {
+		if (!response.ok) {
+			throw Error(response.statusText);
+		}
+		return response.text();
+	}
+
 	domain = "http://localhost:22000/";
 
 	fetchMyImages = () => {
-		fetch(this.domain + "/images/" + this.state.user.username).then((e) => e.json())
+		fetch(this.domain + "/images/" + this.state.user.username).then(this.handleErrorsJson)
 		.then((e) => {
 			this.setState({my_images_loading: false, my_images: e});
 		}).catch((e) => {
-			alert(e.text());
+			alert(e);
+			console.log(e);
 		});
 	}
 
 	fetchOtherImages = () => {
-		fetch(this.domain + "/images/" + this.state.seluser).then((e) => e.json())
+		fetch(this.domain + "/images/" + this.state.seluser).then(this.handleErrorsJson)
 		.then((e) => {
 			this.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		}).catch((e) => {
-			alert(e.text());
+			alert(e);
+			console.log(e);
 			this.setState({other_images_error: true, other_images_loading: false});
 		});
 	}
 
 	fetchDownloadedImages = () => {
-		fetch("/server/downloaded.json").then((e) => e.json())
+		fetch("/server/downloaded.json").then(this.handleErrorsJson)
 		.then((e) => {
 			this.setState({downloaded_images_error: false, download_images_loading: false, download_images: e});
 		}).catch((e) => {
-			alert(e.text());
+			alert(e);
+			console.log(e);
 			this.setState({downloaded_images_error: true, download_images_loading: false});
 		});
 	}
 
 	fetchUserList = () => {
-		fetch(this.domain + "userlist").then((e) => e.json())
+		fetch(this.domain + "userlist").then(this.handleErrorsJson)
 		.then((e) => {
 			this.setState({user_list_error: false, user_list_loading: false, user_list: e ? e : []});
 		}).catch((e) => {
-			alert(e.text());
+			alert(e);
+			console.log(e);
 			this.setState({user_list_error: true, user_list_loading: false});
 		});
 	}
 
 	fetchRequests = () => {
-		fetch("/server/requests.json").then((e) => e.json())
+		fetch("/server/requests.json").then(this.handleErrorsJson)
 		.then((e) => {
 			this.setState({req_error: false, req_loading: false, req_list: e.requests, ongoing_list: e.ongoing});
 		}).catch((e) => {
-			alert(e.text());
+			alert(e);
+			console.log(e);
 			this.setState({req_error: true, req_loading: false});
 		});
 	}
@@ -130,14 +149,15 @@ class App extends Component {
 
 	showImageView = (data) => {
 		let me = this;
-		fetch(this.domain + "image/" + data.ownerID + "/" + data.id + "/" + data.unixTimestamp).then((e) => {return e.text()})
+		fetch(this.domain + "image/" + data.ownerID + "/" + data.id + "/" + data.unixTimestamp).then(this.handleErrorsText)
 		.then((e) => {
 			console.log(e);
 			me.setState({show_full_img: true, full_img: e});
 			//this.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		})
 		.then((e) => {}).catch((e) => {
-			alert(e.text());
+			alert(e);
+			console.log(e);
 			//this.setState({other_images_error: true, other_images_loading: false});
 		});
 	}
