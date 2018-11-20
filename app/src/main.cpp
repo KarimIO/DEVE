@@ -47,6 +47,9 @@ int main(int argc, char *argv[]) {
         
         DeveUIServer duis(adsIP);
         std::cout << "[DEVE] Serving REST on port " << REST_PORT << "." << std::endl;
+
+        RRAD::Dispatcher::singleton.start();
+        
         duis.setUpUIServer(addr);
 
     } catch(std::runtime_error &e) {

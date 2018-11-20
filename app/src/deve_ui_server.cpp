@@ -19,7 +19,7 @@ void deathRoutine() {
 
 std::string base64ImageFromFile(std::string img_path) {
     std::ifstream infile(img_path);
-    if (infile.fail())
+    if (infile.fail() || !infile.is_open())
         throw "invalid.path.for.image";
 
     std::vector<uint8> buffer;
@@ -33,11 +33,12 @@ std::string base64ImageFromFile(std::string img_path) {
 
     infile.close();
 
-    return base64_encode((unsigned char const *)&buffer, buffer.size());
+    return base64_encode((unsigned char const *)&*buffer.begin(), buffer.size());
 }
 
 DeveUIServer::DeveUIServer(std::string adsIP): adsIP(adsIP), ra(adsIP) {
 }
+
 std::vector<std::string> split(std::string s) {
     std::stringstream ss(s);
     std::istream_iterator<std::string> begin(ss);

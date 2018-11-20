@@ -121,6 +121,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
         });
     } else {
         auto listRequest = RDS.listRPC("Image", user);
+        std::cout << listRequest.msg_json << std::endl;
         auto ip = ra->getUserIP(user);
         if (!ip.has_value()) {
             throw "user.doesNotExist";
