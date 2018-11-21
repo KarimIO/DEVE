@@ -27,20 +27,6 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Using ADS at " << adsIP << std::endl;
 
-    /*
-    auto killThread = std::thread([](){
-        std::cout << "(Ctrl+D to exit)" << std::endl;
-        for(;;) {
-            std::string garbage;
-            std::getline(std::cin, garbage);
-            if (std::cin.eof()) {
-                deathRoutine();
-            }
-        }
-    });
-    killThread.detach();
-    */
-
     try {
         Port port(REST_PORT);
         Address addr(Ipv4::any(), port);

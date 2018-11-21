@@ -12,6 +12,7 @@ static auto defaultJSON = R"(
 {
     "ownerID": "__NOUSER",
     "data": "hecc",
+    "title": "sorry",
     "thumb": "heccer",
     "views": 0,
     "access": {
@@ -26,13 +27,14 @@ JPEG Image::generateSteganogramJPEG() {
     return example;
 }
 
-Image::Image(std::string base64, std::string thumbBase64) {
+Image::Image(std::string title, std::string base64, std::string thumbBase64) {
     static int counter = 0;
 
     img_json = defaultJSON;
     img_json["ownerID"] = Dispatcher::singleton.getUID();
     img_json["data"] = base64;
     img_json["thumb"] = thumbBase64;
+    img_json["title"] = title;
 
     id = JSON({});
     id["ownerID"] = Dispatcher::singleton.getUID();
@@ -42,13 +44,14 @@ Image::Image(std::string base64, std::string thumbBase64) {
 
     std::cout << "Saving '" << id.dump() << "'" << std::endl;
 
-    RDS.registerObject(id, this);
+    RDS.registerObject(this);
 }
 
-Image::Image(JSON id, JSON content, bool owned) {
+Image::Image(JSON id, bool owned, JSON img_json) {
     static int counter = 0;
-    img_json = content;
-    RDS.registerObject(id, this, owned);
+    this->id = id;
+    this->img_json = img_json;
+    RDS.registerObject(this, owned);
 }
 
 void Image::setAccess(std::string targetUser, uint32 view_cnt) {
@@ -88,7 +91,7 @@ Image* Image::imageFromSteganogram(JSON id, std::vector<uint8> steganogram) {
     JPEG jpeg = JPEG::fromByteVector(&steganogram);
     JSON content = JSON::parse(jpeg.comment);
     auto owned = content["ownerID"] == RDS.getUID();
-    return new Image(id, content, owned);
+    return new Image(id, owned, content);
 }
 
 JSON Image::executeRPC(std::string name, JSON arguments) {
@@ -114,10 +117,11 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
     if (user == RDS.getUID()) {
         auto images = RDS.listMine("Image");
         std::for_each(images.begin(), images.end(), [&](RemoteObject* ro){
-            auto image = *(Image*)ro;
+            auto& image = *(Image*)ro;
             JSON json;
-            json["id"] = image.id;
+            json["object"] = image.getID();
             json["thumb"] = image.img_json["thumb"];
+            json["title"] = image.img_json["title"];
             json["views"] = image.img_json["views"];
             array.push_back(json);
         });
@@ -129,18 +133,19 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
             throw "user.doesNotExist";
         }
         auto idList = RDS.communicateRMI(ip.value(), REQ_PORT, listRequest);
-        for (auto id: idList) {
-            auto rmiReqMsg = RDS.rmiReqMsg("Image", id["ownerID"], id, "getImage", {});
+        for (auto& object: idList) {
+            auto rmiReqMsg = RDS.rmiReqMsg("Image", object["ownerID"], object, "getImage", {});
             auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
             if (reply.find("error") != reply.end()) {
-                std::cout << "[DEVE] Skipping deleted image " << id.dump() << "..." << std::endl;
+                std::cout << "[DEVE] Skipping deleted image " << object.dump() << "..." << std::endl;
                 continue;
             }
             auto steganogram = base64_decode(reply["result"]);
-            auto& image = *imageFromSteganogram(id, steganogram);
+            auto& image = *imageFromSteganogram(object, steganogram);
             JSON json;
-            json["id"] = image.id;
+            json["object"] = object; //making sure that we at least get the list...
             json["thumb"] = image.img_json["thumb"];
+            json["title"] = image.img_json["title"];
             json["views"] = image.img_json["views"];
 
             array.push_back(json);
@@ -149,7 +154,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
     return array;
 }
 
-JSON Image::getImage(RegistrarArbitration* ra, JSON id) {
+std::string Image::getImage(RegistrarArbitration* ra, JSON id) {
     auto& owner = id["ownerID"];
     std::cout << "Fetching '" << id.dump() << "'..." << std::endl;
     auto self = RDS.getUID();

@@ -6,7 +6,7 @@
 #include <fstream>
 
 void Saver::saveImage(std::string thumb64, std::string string64, std::string filename){
-      Image test(thumb64,string64);
+      Image test(filename, string64, thumb64);
       auto vec = test.getSteganogram();
       dumpIntoFile("out/"+filename,vec);
 

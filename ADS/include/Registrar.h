@@ -14,6 +14,7 @@ struct User {
 };
 
 class Registrar: public RRAD::RemoteObject {
+    JSON id;
     std::map<std::string, User> registry;
     bool logout(std::string userName);
     bool authenticate(std::string userName, std::string password, std::string ip);
@@ -23,6 +24,7 @@ public:
     Registrar();
     virtual std::string getClassName() override { return "Registrar"; }
     virtual JSON executeRPC(std::string name, JSON arguments) override;
+    virtual JSON getID() override { return id; }
 };
 
 #endif // _registrar_h

@@ -7,12 +7,11 @@
 
 Registrar::Registrar() {
     static int counter = 0;
-    JSON id;
     id["ownerID"] = ADS_USERNAME;
     id["unixTimestamp"] = (uint32)time(NULL);
     id["id"] = counter++;
     id["class"] = "Registrar";
-    RRAD::Dispatcher::singleton.registerObject(id, this);
+    RRAD::Dispatcher::singleton.registerObject(this);
 }
 
 bool Registrar::reg(std::string name, std::string password, std::string publicKey) {
@@ -51,7 +50,7 @@ JSON Registrar::list() {
     for (auto user: registry) {
         JSON obj;
         obj["userName"] = user.first;
-        obj["ip"] = user.second.lastIP.has_value() ? user.second.lastIP.value : nullptr;
+        obj["ip"] = user.second.lastIP.has_value() ? user.second.lastIP.value() : nullptr;
         obj["publicKey"] = user.second.publicKey;
         json.push_back(obj);
     }

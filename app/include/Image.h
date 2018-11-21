@@ -32,8 +32,8 @@ class Image : public RemoteObject {
     void recordView(std::string viewer);
     void requestAccess(std::string requester);
 public:
-    Image(std::string base64, std::string thumbBase64);
-    Image(JSON id, JSON content, bool owned = true);
+    Image(std::string title, std::string base64, std::string thumbBase64);
+    Image(JSON id, bool owned, JSON img_json); //changed order to avoid ambiguity, thanks c++
 
     JSON id;
     JSON img_json;
@@ -47,10 +47,11 @@ public:
     static Image* imageFromSteganogram(JSON id, std::vector<uint8> steganogram);
 
     static JSON getList(RegistrarArbitration* ra, std::string user);
-    static JSON getImage(RegistrarArbitration* ra, JSON id);
+    static std::string getImage(RegistrarArbitration* ra, JSON id);
  
     virtual std::string getClassName() override { return "Image"; }
     virtual JSON executeRPC(std::string name, JSON arguments) override;
+    virtual JSON getID() override { return id; }
 };
 
 #endif //_IMAGE_h

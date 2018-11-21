@@ -24,15 +24,15 @@ std::string base64ImageFromFile(std::string img_path) {
     std::vector<uint8> buffer;
 
     infile.seekg(0, infile.end);
-    size_t length = infile.tellg();
+    size_t len = infile.tellg();
     infile.seekg(0, infile.beg);
 
-    buffer.resize(length);
-    infile.read((char*)&buffer[0], length);
+    buffer.resize(len);
+    infile.read((char*)&buffer[0], len);
 
     infile.close();
 
-    return base64_encode((unsigned char const *)&*buffer.begin(), buffer.size());
+    return base64_encode((unsigned char const *)&buffer[0], buffer.size());
 }
 
 DeveUIServer::DeveUIServer(std::string adsIP): adsIP(adsIP), ra(adsIP) {
@@ -84,19 +84,14 @@ void DeveUIServer::serveCLI() {
 
             auto img = base64ImageFromFile(img_path);
             auto thumb = ""; //meh
-            new Image(img, thumb);
+            new Image(img_path, img, thumb);
             std::cout << "Image created" << std::endl;
         } else if (func == "lsimg") {
             if (args.size() < 1) {
                 std::cerr << "nope: " << 1 << std::endl;
             }
 
-            try {
-                std::cout << fetchUserImages(args[1]);
-            } catch (std::exception& e){
-                if (e.what() == "conn.handshake.timeout")
-                    std::cerr << "can't reach destination" << std::endl;
-            }
+            std::cout << fetchUserImages(args[1]);
         } else if (func == "getimg") {
             if (args.size() < 1) {
                 std::cerr << "nope: " << 1 << std::endl;
@@ -215,7 +210,7 @@ void DeveUIServer::postImage(const Pistache::Rest::Request& request, Pistache::H
             auto img = body.substr(0, found);
             auto thumb = body.substr(found + 1, body.size() - found - 1);
 
-            new Image(img, thumb);
+            new Image("new_image", img, thumb);
 
             response.send(Pistache::Http::Code::Ok, "imageUpload.succ");
         }
