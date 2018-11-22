@@ -1,12 +1,15 @@
 #include "deve_ui_server.h"
 #include "TweetNACL.h"
 #include "Image.h"
+#include "DumpFile.h"
 #include "base64.h"
 
 #include <fstream>
 #include <vector>
 
 #include <JSON.h>
+
+#define RDS RRAD::Dispatcher::singleton
 
 using namespace Pistache;
 
@@ -61,14 +64,14 @@ void DeveUIServer::serveCLI() {
             JSON userList = ra.getList();
             std::cout << userList;
         } else if (func == "signup") {
-            if (args.size() < 2) {
+            if (args.size() <= 2) {
                 std::cerr << "nope: " << 2 << std::endl;
                 continue;
             }
 
             signUp(args[1], args[2]);
         } else if (func == "signin") {
-            if (args.size() < 2) {
+            if (args.size() <= 2) {
                 std::cerr << "nope: " << 2 << std::endl;
                 continue;
             }
@@ -77,8 +80,9 @@ void DeveUIServer::serveCLI() {
         } else if (func == "signout") {
             signOut();
         } else if (func == "upload") {
-            if (args.size() < 1) {
+            if (args.size() <= 1) {
                 std::cerr << "nope: " << 1 << std::endl;
+                continue;
             }
             std::string img_path = args[1];
 
@@ -87,20 +91,56 @@ void DeveUIServer::serveCLI() {
             new Image(img_path, img, thumb);
             std::cout << "Image created" << std::endl;
         } else if (func == "lsimg") {
-            if (args.size() < 1) {
+            if (args.size() <= 1) {
                 std::cerr << "nope: " << 1 << std::endl;
+                continue;
             }
 
             std::cout << fetchUserImages(args[1]);
-        } else if (func == "getimg") {
-            if (args.size() < 1) {
-                std::cerr << "nope: " << 1 << std::endl;
+        } else if (func == "getimg") { //getimg user timestamp id
+            if (args.size() <= 3) {
+                std::cerr << "nope: " << 3 << std::endl;
+                continue;
             }
+            JSON id;
+            id["class"] = "Image";
+            id["ownerID"] = args[1];
+            id["unixTimestamp"] = stoll(args[2]);
+            id["id"] = stoi(args[3]);
 
-            std::cout << fetchUserImages(args[1]);
+            try {
+                dumpIntoFile("rsc/output.jpg", base64_decode(Image::getImageData(&ra, id)));
+                std::cout << "View the image at ./view/output.jpg" << std::endl;
+            } catch (const char * e) {
+                std::cerr << "[DEVE] Error: " << e << std::endl;
+            }
+        } else if (func == "grant") { //grant user num_access timestamp id
+            if (args.size() <= 4) {
+                std::cerr << "nope: " << 4 << std::endl;
+                continue;
+            }
+            std::string user = args[1];
+            JSON id;
+            id["class"] = "Image";
+            id["ownerID"] = RDS.getUID();
+            id["unixTimestamp"] = stoll(args[3]);
+            id["id"] = stoi(args[4]);
+
+            auto rmiReqMsg = RDS.rmiReqMsg("Image", user, id, "__setAccess", JSON({
+                        {"view_cnt", stoi(args[2])},
+                        {"targetUser", user}
+            }));
+            auto ip = ra.getUserIP(user);
+            if (!ip.has_value()) {
+                throw "user.doesNotExist";
+            }
+            try {
+                auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
+                std::cout << "Grant Result: " << reply << std::endl;
+            } catch (std::exception &e) {
+                std::cerr << e.what() << "\n";
+            }
         }
-
-
         std::cout << std::endl;
     }
     deathRoutine();
@@ -146,7 +186,7 @@ void DeveUIServer::signOut() {
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     try {
-        auto id = RRAD::Dispatcher::singleton.getUID();
+        auto id = RDS.getUID();
         response.send(Pistache::Http::Code::Ok, id);
     } catch (const char* err) {
         response.send(Pistache::Http::Code::Forbidden, err);
@@ -226,7 +266,7 @@ void DeveUIServer::postImage(const Pistache::Rest::Request& request, Pistache::H
 void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     try {
-        auto id = RRAD::Dispatcher::singleton.getUID();
+        auto id = RDS.getUID();
         auto list = ra.getList();
         list.erase(id);
         response.send(Pistache::Http::Code::Ok, list.dump());
@@ -295,7 +335,7 @@ void DeveUIServer::handleSignIn(const Pistache::Rest::Request& request, Pistache
 }
 
 bool DeveUIServer::signUp(std::string userName, std::string password) {
-    RRAD::Dispatcher::singleton.setUID(userName);
+    RDS.setUID(userName);
     auto r = ra.reg(password);
     if (r) {
         return ra.authenticate(password);
@@ -306,7 +346,7 @@ bool DeveUIServer::signUp(std::string userName, std::string password) {
 
 
 bool DeveUIServer::signIn(std::string userName, std::string password) {
-    RRAD::Dispatcher::singleton.setUID(userName);
+    RDS.setUID(userName);
     return ra.authenticate(password);
 }
 
@@ -315,14 +355,14 @@ JSON DeveUIServer::fetchUserImages(std::string user) {
 }
 
 JSON DeveUIServer::fetchUserImage(JSON id) {
-    return Image::getImage(&ra, id);
+    return Image::getImageData(&ra, id);
 }
 
 JSON DeveUIServer::fetchPendingRequests(std::string id) {
     JSON idObj(id);
-    if (idObj["ownerID"] != RRAD::Dispatcher::singleton.getUID())
+    if (idObj["ownerID"] != RDS.getUID())
         throw "image.not.owned";
-    auto& image = *(Image*)RRAD::Dispatcher::singleton.getObject(id);
+    auto& image = *(Image*)RDS.getObject(id);
     JSON requests = JSON::array();
     for (int i = 0; i < image.requests.size(); i++) {
         requests.push_back(image.requests.front().second);

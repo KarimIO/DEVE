@@ -63,13 +63,20 @@ void Image::requestAccess(std::string requester) {
     Image::requests.push(std::pair(id.dump(), requester));
 }
 
+//sorry I will just hack this since we don't have clear requirements on what should happen
 void Image::recordView(std::string viewer) {
     img_json["views"] = (uint32)img_json["views"] + 1;
+    //work needs to be done here
+    //maybe store viewer with it for statistics
+
+    //accesses are updated locally only
+    /*
     img_json["access"][viewer] = (uint32)img_json["access"][viewer] - 1;
     if (img_json["access"][viewer] < 0) {
         std::cout << "[DEVE] " << viewer << "'s being cheeky with image " << id.dump() << "." << std::endl;
         img_json["access"][viewer] = 0;
     }
+    */
 }
 
 JSON Image::getJSON() {
@@ -96,13 +103,14 @@ Image* Image::imageFromSteganogram(JSON id, std::vector<uint8> steganogram) {
 
 JSON Image::executeRPC(std::string name, JSON arguments) {
     if (name == "__setAccess") {
-        setAccess(arguments["view_cnt"], arguments["targetUser"]);
+        std::cerr << "[DBUG] __setAccess -> " << arguments << std::endl;
+        setAccess(arguments["targetUser"], arguments["view_cnt"]);
         return JSON({});
     } else if (name == "__requestAccess") {
         requestAccess(arguments["ownerID"]);
         return JSON({});
     } else if (name == "__sendView") {
-        recordView(arguments["ownerID"]);
+        recordView(arguments["viewerID"]);
         return JSON({});
     } else if (name == "getImage") {
         JSON reply;
@@ -134,6 +142,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
         }
         auto idList = RDS.communicateRMI(ip.value(), REQ_PORT, listRequest);
         for (auto& object: idList) {
+            //need to check for duplicates
             auto rmiReqMsg = RDS.rmiReqMsg("Image", object["ownerID"], object, "getImage", {});
             auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
             if (reply.find("error") != reply.end()) {
@@ -154,7 +163,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
     return array;
 }
 
-std::string Image::getImage(RegistrarArbitration* ra, JSON id) {
+std::string Image::getImageData(RegistrarArbitration* ra, JSON id) {
     auto& owner = id["ownerID"];
     std::cout << "Fetching '" << id.dump() << "'..." << std::endl;
     auto self = RDS.getUID();
@@ -167,7 +176,7 @@ std::string Image::getImage(RegistrarArbitration* ra, JSON id) {
         return image.img_json["data"];
     }
     if (image.img_json["access"][self] > 0) {
-        auto request = RDS.rmiReqMsg("Image", owner, id, "__sendView", {});
+        auto request = RDS.rmiReqMsg("Image", owner, id, "__sendView", {{"viewerID", self}});
         auto ip = ra->getUserIP(owner);
         if (!ip.has_value()) {
             throw "user.doesNotExist";
@@ -176,7 +185,8 @@ std::string Image::getImage(RegistrarArbitration* ra, JSON id) {
         auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, request);
 
         int accesses = image.img_json["access"][self];
-        image.img_json["access"][self] = accesses - 1;
+        image.setAccess(self, accesses-1);
+
         return image.img_json["data"];
     }
     throw "image.unauthorized";

@@ -47,7 +47,7 @@ public:
     static Image* imageFromSteganogram(JSON id, std::vector<uint8> steganogram);
 
     static JSON getList(RegistrarArbitration* ra, std::string user);
-    static std::string getImage(RegistrarArbitration* ra, JSON id);
+    static std::string getImageData(RegistrarArbitration* ra, JSON id);
  
     virtual std::string getClassName() override { return "Image"; }
     virtual JSON executeRPC(std::string name, JSON arguments) override;
