@@ -1,8 +1,9 @@
-#include "deve_ui_server.h"
+#include "DeveUIServer.h"
 #include "TweetNACL.h"
 #include "Image.h"
 #include "DumpFile.h"
-#include "base64.h"
+
+#include <base64.h>
 
 #include <fstream>
 #include <vector>
@@ -51,7 +52,7 @@ std::vector<std::string> split(std::string s) {
 
 void DeveUIServer::serveCLI() {
     std::cout << "(Ctrl+D to exit)" << std::endl;
-    std::cerr << "CLI Server Started" << std::endl;
+    std::cout << "[DEVE] CLI server started." << std::endl;
 
     std::string cmd;
     while (std::cout << "> ", std::getline(std::cin, cmd)) {
@@ -109,8 +110,8 @@ void DeveUIServer::serveCLI() {
             id["id"] = stoi(args[3]);
 
             try {
-                dumpIntoFile("rsc/output.jpg", base64_decode(Image::getImageData(&ra, id)));
-                std::cout << "View the image at ./view/output.jpg" << std::endl;
+                dumpIntoFile("./output.jpg", base64_decode(Image::getImageData(&ra, id)));
+                std::cout << "View the image at ./output.jpg" << std::endl;
             } catch (const char * e) {
                 std::cerr << "[DEVE] Error: " << e << std::endl;
             }
@@ -120,25 +121,18 @@ void DeveUIServer::serveCLI() {
                 continue;
             }
             std::string user = args[1];
+            int views = std::stoi(args[2]);
+
             JSON id;
             id["class"] = "Image";
             id["ownerID"] = RDS.getUID();
             id["unixTimestamp"] = stoll(args[3]);
             id["id"] = stoi(args[4]);
 
-            auto rmiReqMsg = RDS.rmiReqMsg("Image", user, id, "__setAccess", JSON({
-                        {"view_cnt", stoi(args[2])},
-                        {"targetUser", user}
-            }));
-            auto ip = ra.getUserIP(user);
-            if (!ip.has_value()) {
-                throw "user.doesNotExist";
-            }
             try {
-                auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
-                std::cout << "Grant Result: " << reply << std::endl;
-            } catch (std::exception &e) {
-                std::cerr << e.what() << "\n";
+                std::cout << "[DEVE] Grant result: " << setImageAccess(id, user, views) << std::endl;
+            } catch (const char* e) {
+                std::cerr << "[DEVE] Error: " << e << std::endl;
             }
         }
         std::cout << std::endl;
@@ -146,7 +140,7 @@ void DeveUIServer::serveCLI() {
     deathRoutine();
 }
 
-void DeveUIServer::setUpUIServer(Pistache::Address addr) {
+void DeveUIServer::startServers(Pistache::Address addr) {
     auto opts = Http::Endpoint::options()
         .threads(2)
         .flags(Tcp::Options::InstallSignalHandler)
@@ -156,7 +150,7 @@ void DeveUIServer::setUpUIServer(Pistache::Address addr) {
     setupRoutes();
     http_endpoint_->init(opts);
     http_endpoint_->setHandler(router_.handler());
-    std::cerr << "UI Server Started" << std::endl;
+    std::cout << "[DEVE] GUI server started." << std::endl;
     auto cli_thread = std::thread([&]() {
             serveCLI();
     });
@@ -369,4 +363,26 @@ JSON DeveUIServer::fetchPendingRequests(std::string id) {
         image.requests.pop();
     }
     return requests;
+}
+
+JSON DeveUIServer::setImageAccess(JSON id, std::string targetUser, int views) {
+    Image* ptr = (Image*)RDS.getObject(id);
+    if (ptr == nullptr) {
+        throw "image.doesNotExist";
+    }
+    // You need to set access both locally and remotely... Stupid, I'm aware.
+    auto& image = *ptr;
+    image.setAccess(targetUser, views);
+    auto rmiReqMsg = RDS.rmiReqMsg("Image", targetUser, id, "__setAccess", JSON({
+            {"viewCount", views},
+            {"targetUser", targetUser}
+        })
+    );
+
+    auto ip = ra.getUserIP(targetUser);
+    if (!ip.has_value()) {
+        throw "user.doesNotExist";
+    }
+    
+    return RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
 }

@@ -65,9 +65,13 @@ run:
 	echo '#!/bin/bash' > run
 	echo 'LD_LIBRARY_PATH=$(SUBDIRPATHS) ./deve-app $$@' >> run
 	chmod +x run
+	echo '#!/bin/bash' > llrun
+	echo 'LD_LIBRARY_PATH=$(SUBDIRPATHS) lldb ./deve-app $$@' >> llrun
+	chmod +x llrun
 
 clean:
 	rm -rf build/
 	rm -f $(EXEC)
 	rm -f *.so
 	rm -f run
+	rm -f llrun

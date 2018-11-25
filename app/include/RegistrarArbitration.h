@@ -30,7 +30,7 @@ public:
     std::optional<std::string> getUserIP(std::string userName);
 
     virtual void encodeArguments(JSON* ptr) override;
-    virtual void verifyArguments(JSON* ptr) override;
+    virtual void verifyArguments(std::string userName, JSON* ptr) override;
 };
 
 #endif // _registrar_arbitration_h

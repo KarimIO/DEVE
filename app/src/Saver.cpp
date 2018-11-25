@@ -9,20 +9,19 @@ void Saver::saveImage(std::string thumb64, std::string string64, std::string fil
       Image test(filename, string64, thumb64);
       auto vec = test.getSteganogram();
       dumpIntoFile("out/"+filename,vec);
+}
 
-}; 
-
-void Saver::loadImage(std::string filepath){
+void Saver::loadImage(std::string filepath ){
     auto vec = dumpFile(filepath);
 
 //    std::cout<<vec<<std::endl;
-};
+}
 
 void Saver::saveJSON(JSON  t){
     
-};
+}
 
 void Saver::loadJSON(){
 
     
-};
+}

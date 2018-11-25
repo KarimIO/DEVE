@@ -28,7 +28,6 @@ format:
 */
 
 class Image : public RemoteObject {
-    void setAccess(std::string targetUser, uint32 view_cnt);
     void recordView(std::string viewer);
     void requestAccess(std::string requester);
 public:
@@ -40,6 +39,7 @@ public:
 
     static std::queue< std::pair<std::string, std::string> > requests;
     static JPEG generateSteganogramJPEG();
+    void setAccess(std::string targetUser, uint32 view_cnt);
     
     JSON getJSON();
     std::vector<uint8> getSteganogram();

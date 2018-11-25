@@ -60,14 +60,14 @@ JSON Registrar::list() {
 JSON Registrar::executeRPC(std::string name, JSON arguments) {
     if (name == "authenticate") {
         JSON reply;
-        reply["result"] = authenticate(arguments["userName"], arguments["password"], arguments["__RRAD__INTERNAL__senderIP"]);
+        reply["result"] = authenticate(arguments["RRAD::senderUserName"], arguments["password"], arguments["RRAD::senderIP"]);
         return reply;
     } else if (name == "__logout") {
-        logout(arguments["userName"]);
+        logout(arguments["RRAD::senderUserName"]);
         return JSON();
     } else if (name == "register") {
         JSON reply;
-        reply["result"] = reg(arguments["userName"], arguments["password"], arguments["publicKey"]);
+        reply["result"] = reg(arguments["RRAD::senderUserName"], arguments["password"], arguments["publicKey"]);
         return reply;
     } else if (name == "list") {
         JSON reply;

@@ -1,10 +1,11 @@
 #include <iostream>
 
-#include <picosha2.h>
 #include <Vectorize.h>
+
+#include <picosha2.h>
+#include <base64.h>
 #include <TweetNACL.h>
 
-#include "base64.h"
 #include "RegistrarArbitration.h"
 #include "Constants.h"
 
@@ -30,6 +31,7 @@ void RegistrarArbitration::encodeArguments(JSON* ptr) {
     auto hashable = json["data"].dump(); // Hashable
     picosha2::hash256(hashable.begin(), hashable.end(), hash.begin(), hash.end()); // Hash (bytes)
 
+
     auto signable = picosha2::bytes_to_hex_string(hash.begin(), hash.end()); // Hash (string)
 
     std::vector<uint8> signedMessage;
@@ -41,7 +43,7 @@ void RegistrarArbitration::encodeArguments(JSON* ptr) {
     json["signature"] = base64_encode(&signedMessage[0], signLength); // Base64 (string)
 }
 
-void RegistrarArbitration::verifyArguments(JSON* ptr) {
+void RegistrarArbitration::verifyArguments(std::string userName, JSON* ptr) {
     auto& json = *ptr;
 
     std::vector<uint8> hash(picosha2::k_digest_size);
@@ -57,27 +59,31 @@ void RegistrarArbitration::verifyArguments(JSON* ptr) {
     unsignedHash.resize(signature.size());
 
     std::vector<uint8>* publicKeyPtr;
-    auto targetUser = json["data"]["userName"];
-    if (localRegistry.find(targetUser) == localRegistry.end()) {
+    if (localRegistry.find(userName) == localRegistry.end()) {
         updateUserList();
-        if (localRegistry.find(targetUser) == localRegistry.end()) {
+        if (localRegistry.find(userName) == localRegistry.end()) {
             throw "crypto.cannotFindUser";
         }
     }
-    publicKeyPtr = &localRegistry[targetUser].publicKey;
+    publicKeyPtr = &localRegistry[userName].publicKey;
     auto& publicKey = *publicKeyPtr;
 
     auto result = crypto_sign_open(&unsignedHash[0], &unsignLength, &signature[0], signature.size(), &publicKey[0]); // Challenger Hash (bytes + trash)
-    unsignedHash.resize(unsignLength); // Challenger Hash (bytes)
 
-    auto challenger = RRAD::devectorizeToString(unsignedHash); // Challenger Hash (string)
-
-    if (result < 0 ) {
+    if (result < 0) {
         throw "crypto.invalidKey";
     }
+
+    unsignedHash.resize(unsignLength); // Challenger Hash (bytes)
+    auto challenger = RRAD::devectorizeToString(unsignedHash); // Challenger Hash (string)
+
     if (comparable != challenger) {
-        std::cerr << "[RRAD] Crypto.HashMismatch: " << comparable << " - " << challenger << std::endl;
-        //throw "crypto.hashMismatch";
+        std::cerr << "[DEVE] Cryptographic Hash Mismatch: "
+                  << "Hash 0:" << comparable << std::endl
+                  << "Hash 1:" << challenger << std::endl
+                  << "String (" << hashable.length() << " bytes): " << hashable  << std::endl
+                  << std::endl;
+        throw "crypto.hashMismatch";
     }
 }
 
@@ -97,7 +103,7 @@ bool RegistrarArbitration::reg(std::string password) {
 }
 
 void RegistrarArbitration::updateUserList() {
-    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID,  "list", {});
+    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID,  "list", JSON(JSON::value_t::object));
     auto reply = __com(request);
     localRegistry = std::map<std::string, User>();
     for (auto user: reply["result"]) {
@@ -114,7 +120,7 @@ void RegistrarArbitration::updateUserList() {
 
 JSON RegistrarArbitration::getList() {
     updateUserList();
-    JSON returnValue = {};
+    JSON returnValue = JSON(JSON::value_t::object);
     for (auto user: localRegistry) {
         returnValue[user.first] = user.second.ip.has_value() ? user.second.ip.value() : nullptr;
     }
@@ -146,6 +152,6 @@ bool RegistrarArbitration::authenticate(std::string password) {
 
 
 void RegistrarArbitration::logout() {
-    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID, "__logout", {});
+    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID, "__logout", JSON(JSON::value_t::object));
     auto reply = __com(request);
 }

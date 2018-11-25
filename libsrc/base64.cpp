@@ -30,7 +30,7 @@
 */
 /*
   This code has been altered by Mohamed Gaber for the DEVE project:
-    * Return type of decoder changed to return std::vector<uint8>, function has been edited to reflect said change.
+    * Return type of decoder changed to return std::vector<uint8_t>, function has been edited to reflect said change.
 */
 #include "base64.h"
 #include <iostream>
@@ -87,13 +87,13 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
 
 }
 
-std::vector<uint8> base64_decode(std::string const& encoded_string) {
+std::vector<uint8_t> base64_decode(std::string const& encoded_string) {
   int in_len = encoded_string.size();
   int i = 0;
   int j = 0;
   int in_ = 0;
   unsigned char char_array_4[4], char_array_3[3];
-  std::vector<uint8> ret;
+  std::vector<uint8_t> ret;
   ret.reserve(in_len);
 
   while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {

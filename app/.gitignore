@@ -2,7 +2,9 @@ deve-app
 *.so
 build/
 *.out
-./*.jpg
-./*.jpeg
+/*.jpg
+/*.jpeg
+
 run
-./compile_commands.json
+llrun
+/compile_commands.json

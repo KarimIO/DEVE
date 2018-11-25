@@ -36,13 +36,11 @@ Image::Image(std::string title, std::string base64, std::string thumbBase64) {
     img_json["thumb"] = thumbBase64;
     img_json["title"] = title;
 
-    id = JSON({});
+    id = JSON(JSON::value_t::object);
     id["ownerID"] = Dispatcher::singleton.getUID();
     id["unixTimestamp"] = (uint32)time(NULL);
     id["id"] = counter++;
     id["class"] = "Image";
-
-    std::cout << "Saving '" << id.dump() << "'" << std::endl;
 
     RDS.registerObject(this);
 }
@@ -59,24 +57,19 @@ void Image::setAccess(std::string targetUser, uint32 view_cnt) {
 }
 
 void Image::requestAccess(std::string requester) {
-    //why do we need the id?
+    // Q: why do we need the id?
+    // A: Image::requests is a global object. You need the image's id beyond this.
     Image::requests.push(std::pair(id.dump(), requester));
 }
 
-//sorry I will just hack this since we don't have clear requirements on what should happen
 void Image::recordView(std::string viewer) {
     img_json["views"] = (uint32)img_json["views"] + 1;
-    //work needs to be done here
-    //maybe store viewer with it for statistics
 
-    //accesses are updated locally only
-    /*
     img_json["access"][viewer] = (uint32)img_json["access"][viewer] - 1;
     if (img_json["access"][viewer] < 0) {
         std::cout << "[DEVE] " << viewer << "'s being cheeky with image " << id.dump() << "." << std::endl;
         img_json["access"][viewer] = 0;
     }
-    */
 }
 
 JSON Image::getJSON() {
@@ -103,15 +96,14 @@ Image* Image::imageFromSteganogram(JSON id, std::vector<uint8> steganogram) {
 
 JSON Image::executeRPC(std::string name, JSON arguments) {
     if (name == "__setAccess") {
-        std::cerr << "[DBUG] __setAccess -> " << arguments << std::endl;
-        setAccess(arguments["targetUser"], arguments["view_cnt"]);
-        return JSON({});
+        setAccess(arguments["targetUser"], arguments["viewCount"]);
+        return JSON(JSON::value_t::object);
     } else if (name == "__requestAccess") {
-        requestAccess(arguments["ownerID"]);
-        return JSON({});
+        requestAccess(arguments["RRAD::senderUserName"]);
+        return JSON(JSON::value_t::object);
     } else if (name == "__sendView") {
-        recordView(arguments["viewerID"]);
-        return JSON({});
+        recordView(arguments["RRAD::senderUserName"]);
+        return JSON(JSON::value_t::object);
     } else if (name == "getImage") {
         JSON reply;
         reply["result"] = getSteganogramBase64();
@@ -135,7 +127,6 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
         });
     } else {
         auto listRequest = RDS.listRPC("Image", user);
-        std::cout << listRequest.msg_json << std::endl;
         auto ip = ra->getUserIP(user);
         if (!ip.has_value()) {
             throw "user.doesNotExist";
@@ -143,7 +134,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
         auto idList = RDS.communicateRMI(ip.value(), REQ_PORT, listRequest);
         for (auto& object: idList) {
             //need to check for duplicates
-            auto rmiReqMsg = RDS.rmiReqMsg("Image", object["ownerID"], object, "getImage", {});
+            auto rmiReqMsg = RDS.rmiReqMsg("Image", object["ownerID"], object, "getImage", JSON(JSON::value_t::object));
             auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
             if (reply.find("error") != reply.end()) {
                 std::cout << "[DEVE] Skipping deleted image " << object.dump() << "..." << std::endl;
@@ -165,7 +156,6 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
 
 std::string Image::getImageData(RegistrarArbitration* ra, JSON id) {
     auto& owner = id["ownerID"];
-    std::cout << "Fetching '" << id.dump() << "'..." << std::endl;
     auto self = RDS.getUID();
     auto ptr = (Image*)(RDS.getObject(id));
     if (!ptr) {
@@ -176,16 +166,13 @@ std::string Image::getImageData(RegistrarArbitration* ra, JSON id) {
         return image.img_json["data"];
     }
     if (image.img_json["access"][self] > 0) {
-        auto request = RDS.rmiReqMsg("Image", owner, id, "__sendView", {{"viewerID", self}});
+        image.recordView(self);
+        auto request = RDS.rmiReqMsg("Image", owner, id, "__sendView", JSON(JSON::value_t::object));
         auto ip = ra->getUserIP(owner);
         if (!ip.has_value()) {
-            throw "user.doesNotExist";
+            throw "user.offline";
         }
-
         auto reply = RDS.communicateRMI(ip.value(), REQ_PORT, request);
-
-        int accesses = image.img_json["access"][self];
-        image.setAccess(self, accesses-1);
 
         return image.img_json["data"];
     }

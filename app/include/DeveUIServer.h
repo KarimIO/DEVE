@@ -15,7 +15,7 @@
 #include "Constants.h"
 
 class DeveUIServer {
-public:
+    // Frontend Hispter Stuff
     void setupRoutes();
     void doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void getDownloadedImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
@@ -28,18 +28,26 @@ public:
     std::shared_ptr<Pistache::Http::Endpoint> http_endpoint_ = NULL;
     Pistache::Rest::Router router_;
 
+    // Real development
+
     bool signUp(std::string userName, std::string password);
     bool signIn(std::string userName, std::string password);
     void signOut();
 
+    JSON fetchUsers();
+
+    JSON fetchUserImages(std::string user);
     JSON fetchUserImage(JSON id);
+
     JSON fetchPendingRequests(std::string id);
-    nlohmann::json fetchUserImages(std::string user);
-    nlohmann::json fetchUsers();
+    JSON setImageAccess(JSON id, std::string targetUser, int views);
+    
     void serveCLI();
+
+public:
     DeveUIServer(std::string adsIP);
-    void setUpUIServer(Pistache::Address addr);
-    void start();
+
+    void startServers(Pistache::Address addr);
 
     std::string adsIP;
     RegistrarArbitration ra;
