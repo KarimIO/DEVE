@@ -29,18 +29,18 @@ class DeveUIServer {
     Pistache::Rest::Router router_;
 
     // Real development
-
     bool signUp(std::string userName, std::string password);
     bool signIn(std::string userName, std::string password);
-    void signOut();
+    void signOut(); // Deprecated, do not use.
 
     JSON fetchUsers();
 
     JSON fetchUserImages(std::string user);
     JSON fetchUserImage(JSON id);
 
-    JSON fetchPendingRequests(std::string id);
-    JSON setImageAccess(JSON id, std::string targetUser, int views);
+    void requestImage(JSON id);
+    JSON fetchPendingRequests();
+    void setImageAccess(JSON id, std::string targetUser, int views);
     
     void serveCLI();
 

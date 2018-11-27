@@ -59,20 +59,14 @@ JSON Registrar::list() {
 
 JSON Registrar::executeRPC(std::string name, JSON arguments) {
     if (name == "authenticate") {
-        JSON reply;
-        reply["result"] = authenticate(arguments["RRAD::senderUserName"], arguments["password"], arguments["RRAD::senderIP"]);
-        return reply;
+        return authenticate(arguments["RRAD::senderUserName"], arguments["password"], arguments["RRAD::senderIP"]);
     } else if (name == "__logout") {
         logout(arguments["RRAD::senderUserName"]);
-        return JSON();
+        return EmptyJSO;
     } else if (name == "register") {
-        JSON reply;
-        reply["result"] = reg(arguments["RRAD::senderUserName"], arguments["password"], arguments["publicKey"]);
-        return reply;
+        return reg(arguments["RRAD::senderUserName"], arguments["password"], arguments["publicKey"]);
     } else if (name == "list") {
-        JSON reply;
-        reply["result"] = list();
-        return reply;
+        return list();
     }
     throw "rpc.unknownMethod";
 }

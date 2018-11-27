@@ -14,13 +14,14 @@
 
 using namespace Pistache;
 
-void deathRoutine() {
+// Static Helpers
+static void deathRoutine() {
     // Save here
     std::cerr << "Terminating..." << std::endl;
     exit(0);
 }
 
-std::string base64ImageFromFile(std::string img_path) {
+static std::string base64ImageFromFile(std::string img_path) {
     std::ifstream infile(img_path);
     if (infile.fail() || !infile.is_open())
         throw "invalid.path.for.image";
@@ -39,10 +40,7 @@ std::string base64ImageFromFile(std::string img_path) {
     return base64_encode((unsigned char const *)&buffer[0], buffer.size());
 }
 
-DeveUIServer::DeveUIServer(std::string adsIP): adsIP(adsIP), ra(adsIP) {
-}
-
-std::vector<std::string> split(std::string s) {
+static std::vector<std::string> split(std::string s) {
     std::stringstream ss(s);
     std::istream_iterator<std::string> begin(ss);
     std::istream_iterator<std::string> end;
@@ -50,6 +48,30 @@ std::vector<std::string> split(std::string s) {
     return vstrings;
 }
 
+
+DeveUIServer::DeveUIServer(std::string adsIP): adsIP(adsIP), ra(adsIP) {
+}
+
+
+void DeveUIServer::startServers(Pistache::Address addr) {
+    auto opts = Http::Endpoint::options()
+        .threads(2)
+        .flags(Tcp::Options::InstallSignalHandler)
+        .maxPayload(SIZE_MAX);
+
+    http_endpoint_ = std::shared_ptr<Pistache::Http::Endpoint>(new Http::Endpoint(addr));
+    setupRoutes();
+    http_endpoint_->init(opts);
+    http_endpoint_->setHandler(router_.handler());
+    std::cout << "[DEVE] GUI server started." << std::endl;
+    auto cli_thread = std::thread([&]() {
+            serveCLI();
+    });
+    cli_thread.detach();
+
+    http_endpoint_->serve();
+
+}
 void DeveUIServer::serveCLI() {
     std::cout << "(Ctrl+D to exit)" << std::endl;
     std::cout << "[DEVE] CLI server started." << std::endl;
@@ -62,7 +84,7 @@ void DeveUIServer::serveCLI() {
         std::vector<std::string> args = split(cmd);
         std::string func = args[0];
         if (func == "lsusr") {
-            JSON userList = ra.getList();
+            JSON userList = fetchUsers();
             std::cout << userList;
         } else if (func == "signup") {
             if (args.size() <= 2) {
@@ -88,7 +110,7 @@ void DeveUIServer::serveCLI() {
             std::string img_path = args[1];
 
             auto img = base64ImageFromFile(img_path);
-            auto thumb = ""; //meh
+            auto thumb = ""; //meh // big mood
             new Image(img_path, img, thumb);
             std::cout << "Image created" << std::endl;
         } else if (func == "lsimg") {
@@ -111,10 +133,29 @@ void DeveUIServer::serveCLI() {
 
             try {
                 dumpIntoFile("./output.jpg", base64_decode(Image::getImageData(&ra, id)));
-                std::cout << "View the image at ./output.jpg" << std::endl;
+                std::cout << "View the image at ./output.jpg" << std::endl; // CLI ONLY!! GUI SHOULD NEVER STORE THE IMAGE IN PLAIN BINARY EVER EVER EVER EVER
             } catch (const char * e) {
                 std::cerr << "[DEVE] Error: " << e << std::endl;
             }
+        } else if (func == "reqimg") {
+            if (args.size() <= 3) {
+                std::cerr << "nope: " << 3 << std::endl;
+                continue;
+            }
+            JSON id;
+            id["class"] = "Image";
+            id["ownerID"] = args[1];
+            id["unixTimestamp"] = stoll(args[2]);
+            id["id"] = stoi(args[3]);
+
+            try {
+                requestImage(id);
+                std::cout << "Requested." << std::endl;
+            } catch (const char * e) {
+                std::cerr << "[DEVE] Error: " << e << std::endl;
+            }
+        } else if (func == "getreqs") {
+            std::cout << fetchPendingRequests() << std::endl;
         } else if (func == "grant") { //grant user num_access timestamp id
             if (args.size() <= 4) {
                 std::cerr << "nope: " << 4 << std::endl;
@@ -130,34 +171,15 @@ void DeveUIServer::serveCLI() {
             id["id"] = stoi(args[4]);
 
             try {
-                std::cout << "[DEVE] Grant result: " << setImageAccess(id, user, views) << std::endl;
+                setImageAccess(id, user, views);
             } catch (const char* e) {
                 std::cerr << "[DEVE] Error: " << e << std::endl;
             }
+            std::cout << "[DEVE] Granted." << std::endl;
         }
         std::cout << std::endl;
     }
     deathRoutine();
-}
-
-void DeveUIServer::startServers(Pistache::Address addr) {
-    auto opts = Http::Endpoint::options()
-        .threads(2)
-        .flags(Tcp::Options::InstallSignalHandler)
-        .maxPayload(SIZE_MAX);
-
-    http_endpoint_ = std::shared_ptr<Pistache::Http::Endpoint>(new Http::Endpoint(addr));
-    setupRoutes();
-    http_endpoint_->init(opts);
-    http_endpoint_->setHandler(router_.handler());
-    std::cout << "[DEVE] GUI server started." << std::endl;
-    auto cli_thread = std::thread([&]() {
-            serveCLI();
-    });
-    cli_thread.detach();
-
-    http_endpoint_->serve();
-
 }
 
 void DeveUIServer::setupRoutes() {
@@ -171,10 +193,6 @@ void DeveUIServer::setupRoutes() {
     Routes::Post(router_, "/image", Routes::bind(&DeveUIServer::postImage, this));
     Routes::Post(router_, "/signup", Routes::bind(&DeveUIServer::handleSignUp, this));
     Routes::Post(router_, "/signin", Routes::bind(&DeveUIServer::handleSignIn, this));
-}
-
-void DeveUIServer::signOut() {
-    ra.logout();
 }
 
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
@@ -328,6 +346,7 @@ void DeveUIServer::handleSignIn(const Pistache::Rest::Request& request, Pistache
     }
 }
 
+// MARK: Real development
 bool DeveUIServer::signUp(std::string userName, std::string password) {
     RDS.setUID(userName);
     auto r = ra.reg(password);
@@ -338,11 +357,20 @@ bool DeveUIServer::signUp(std::string userName, std::string password) {
     return r;
 }
 
-
 bool DeveUIServer::signIn(std::string userName, std::string password) {
     RDS.setUID(userName);
     return ra.authenticate(password);
 }
+
+void DeveUIServer::signOut() {
+    ra.logout();
+}
+
+
+JSON DeveUIServer::fetchUsers() {
+    return ra.getList();
+}
+
 
 JSON DeveUIServer::fetchUserImages(std::string user) {
     return Image::getList(&ra, user);
@@ -352,37 +380,35 @@ JSON DeveUIServer::fetchUserImage(JSON id) {
     return Image::getImageData(&ra, id);
 }
 
-JSON DeveUIServer::fetchPendingRequests(std::string id) {
-    JSON idObj(id);
-    if (idObj["ownerID"] != RDS.getUID())
-        throw "image.not.owned";
-    auto& image = *(Image*)RDS.getObject(id);
-    JSON requests = JSON::array();
-    for (int i = 0; i < image.requests.size(); i++) {
-        requests.push_back(image.requests.front().second);
-        image.requests.pop();
-    }
-    return requests;
-}
-
-JSON DeveUIServer::setImageAccess(JSON id, std::string targetUser, int views) {
+static inline Image* getImageObject(JSON id) {
     Image* ptr = (Image*)RDS.getObject(id);
     if (ptr == nullptr) {
         throw "image.doesNotExist";
     }
-    // You need to set access both locally and remotely... Stupid, I'm aware.
-    auto& image = *ptr;
-    image.setAccess(targetUser, views);
-    auto rmiReqMsg = RDS.rmiReqMsg("Image", targetUser, id, "__setAccess", JSON({
-            {"viewCount", views},
-            {"targetUser", targetUser}
-        })
-    );
+    return ptr;
+}
 
-    auto ip = ra.getUserIP(targetUser);
-    if (!ip.has_value()) {
-        throw "user.doesNotExist";
+void DeveUIServer::requestImage(JSON id) {
+    if (id["ownerID"] == RDS.getUID()) {
+        return; // This is stupid
     }
-    
-    return RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
+    auto& image = *getImageObject(id);
+    image.requestAccess(&ra);
+
+}
+
+JSON DeveUIServer::fetchPendingRequests() {
+    JSON requests = JSON::array();
+    for (int i = 0; i < Image::requests.size(); i++) {
+        auto& front = Image::requests.front();
+
+        requests.push_back({ {"image", front.first->getID() }, {"user", front.second}});
+        Image::requests.pop();
+    }
+    return requests;
+}
+
+void DeveUIServer::setImageAccess(JSON id, std::string targetUser, int views) {
+    auto& image = *getImageObject(id);
+    image.setAccess(&ra, targetUser, views);
 }

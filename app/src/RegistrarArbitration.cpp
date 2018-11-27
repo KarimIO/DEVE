@@ -17,7 +17,7 @@ RegistrarArbitration::RegistrarArbitration(std::string ip) {
     
     auto request = RDS.listRPC("Registrar", ADS_USERNAME);
     auto reply = RDS.communicateRMI(adsIP, ADS_PORT,request);
-    registrarID = reply[0];
+    registrarID = reply["result"][0];
 
     publicKey.resize(crypto_sign_PUBLICKEYBYTES);
     privateKey.resize(crypto_sign_SECRETKEYBYTES);
@@ -103,7 +103,7 @@ bool RegistrarArbitration::reg(std::string password) {
 }
 
 void RegistrarArbitration::updateUserList() {
-    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID,  "list", JSON(JSON::value_t::object));
+    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID,  "list", EmptyJSO);
     auto reply = __com(request);
     localRegistry = std::map<std::string, User>();
     for (auto user: reply["result"]) {
@@ -120,7 +120,7 @@ void RegistrarArbitration::updateUserList() {
 
 JSON RegistrarArbitration::getList() {
     updateUserList();
-    JSON returnValue = JSON(JSON::value_t::object);
+    JSON returnValue = EmptyJSO;
     for (auto user: localRegistry) {
         returnValue[user.first] = user.second.ip.has_value() ? user.second.ip.value() : nullptr;
     }
@@ -152,6 +152,6 @@ bool RegistrarArbitration::authenticate(std::string password) {
 
 
 void RegistrarArbitration::logout() {
-    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID, "__logout", JSON(JSON::value_t::object));
+    auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID, "__logout", EmptyJSO);
     auto reply = __com(request);
 }
