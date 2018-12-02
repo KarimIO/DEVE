@@ -3,7 +3,7 @@
 
 #include "Constants.h"
 
-RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher(ADS_USERNAME, ADS_PORT);
+RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher(ADS_USERNAME, ADS_PORT, true);
 
 int main(int argc, char** argv) {
     new Registrar();

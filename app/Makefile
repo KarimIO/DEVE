@@ -6,7 +6,7 @@ LINKER_FLAGS =
 EXEC = deve-app
 
 SRC_DIR = src
-BUILD_DIR = build
+BUILD_DIR = build/$(shell uname)/app
 
 COMMON_SRC_DIR = ../src
 COMMON_INCLUDE_DIR = ../include
@@ -22,13 +22,13 @@ SUBMODULE_LINKS = $(patsubst lib%.so,%,$(notdir $(SUBMODULE_FINAL_LIBRARIES)))
 
 LIB_HEADERS = $(shell find $(LIB_INCLUDE_DIR) -name "*.h")
 LIB_SOURCES = $(shell find $(LIB_SRC_DIR) -name "*.c")
-LIB_OBJECTS = $(addprefix build/build/, $(patsubst %.c,%.o,$(LIB_SOURCES)))
+LIB_OBJECTS = $(addprefix $(BUILD_DIR)/, $(patsubst %.c,%.o,$(LIB_SOURCES)))
 LIB_CPP_SOURCES = $(shell find $(LIB_SRC_DIR) -name "*.cpp")
-LIB_CPP_OBJECTS = $(addprefix build/build/, $(patsubst %.cpp,%.o,$(LIB_CPP_SOURCES)))
+LIB_CPP_OBJECTS = $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp,%.o,$(LIB_CPP_SOURCES)))
 
 HEADERS = $(shell find $(INCLUDE_DIR) -name "*.h") $(shell find $(COMMON_INCLUDE_DIR) -name "*.h") $(LIB_HEADERS)
 SOURCES = $(shell find $(SRC_DIR) -name "*.cpp") $(shell find $(COMMON_SRC_DIR) -name "*.cpp")
-OBJECTS = $(addprefix build/build/, $(patsubst %.cpp,%.o,$(SOURCES)))
+OBJECTS = $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp,%.o,$(SOURCES)))
 
 LIBS = -pthread 
 
@@ -46,15 +46,15 @@ release: $(EXEC) run
 $(SUBMODULE_FINAL_LIBRARIES):
 	+make -C $(@D)
 
-$(LIB_OBJECTS): build/build/%.o : %.c $(LIB_HEADERS)
+$(LIB_OBJECTS): $(BUILD_DIR)/%.o : %.c $(LIB_HEADERS)
 	mkdir -p $(@D)
 	$(CC) -I$(LIB_INCLUDE_DIR) $(FLAGS) -c -o $@ $<
 
-$(LIB_CPP_OBJECTS): build/build/%.o : %.cpp $(LIB_HEADERS)
+$(LIB_CPP_OBJECTS): $(BUILD_DIR)/%.o : %.cpp $(LIB_HEADERS)
 	mkdir -p $(@D)
 	$(CXX) -I$(LIB_INCLUDE_DIR) $(CXX_FLAGS) -c -o $@ $<
 
-$(OBJECTS): build/build/%.o : %.cpp $(HEADERS)
+$(OBJECTS): $(BUILD_DIR)/%.o : %.cpp $(HEADERS)
 	mkdir -p $(@D)
 	$(CXX) -I$(COMMON_INCLUDE_DIR) -I$(INCLUDE_DIR) -I$(LIB_INCLUDE_DIR) $(addprefix -I, $(SUBMODULE_INCLUDE_DIRS)) $(CXX_FLAGS) -c -o $@ $< 
 

@@ -70,6 +70,7 @@
         "__locale": "cpp",
         "locale": "cpp",
         "__mutex_base": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "queue": "cpp"
     }
 }

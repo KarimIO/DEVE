@@ -50,6 +50,7 @@ static std::vector<std::string> split(std::string s) {
 
 
 DeveUIServer::DeveUIServer(std::string adsIP): adsIP(adsIP), ra(adsIP) {
+    RDS.setForwarder(adsIP, ADS_PORT);
 }
 
 
@@ -112,7 +113,7 @@ void DeveUIServer::serveCLI() {
             auto img = base64ImageFromFile(img_path);
             auto thumb = ""; //meh // big mood
             new Image(img_path, img, thumb);
-            std::cout << "Image created" << std::endl;
+            std::cout << "[DEVE] Image created." << std::endl;
         } else if (func == "lsimg") {
             if (args.size() <= 1) {
                 std::cerr << "nope: " << 1 << std::endl;
@@ -154,7 +155,7 @@ void DeveUIServer::serveCLI() {
             } catch (const char * e) {
                 std::cerr << "[DEVE] Error: " << e << std::endl;
             }
-        } else if (func == "getreqs") {
+        } else if (func == "lsreq") {
             std::cout << fetchPendingRequests() << std::endl;
         } else if (func == "grant") { //grant user num_access timestamp id
             if (args.size() <= 4) {
