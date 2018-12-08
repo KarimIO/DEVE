@@ -107,9 +107,9 @@ class App extends Component {
 	fetchRequests = () => {
 		let me = this;
 		
-		fetch("/server/requests.json").then(this.handleErrorsJson)
+		fetch(this.domain + "requests").then(this.handleErrorsJson)
 		.then((e) => {
-			me.setState({req_error: false, req_loading: false, req_list: e.requests, ongoing_list: e.ongoing});
+			me.setState({req_error: false, req_loading: false, req_list: me.state.req_list.concat(e), ongoing_list: []});
 		}).catch((e) => {
 			alert(e);
 			console.log(e);
@@ -128,6 +128,20 @@ class App extends Component {
 			// If not just load the correct subscreen
 			this.setState({selscreen: 0});
 		}
+	}
+
+	grantViews = (image, user) => {
+		let me = this;
+
+		var views = prompt("How many views would you like to grant?", 0);
+
+		fetch(this.domain + "grant/" + image.ownerID + "/" + image.id + "/" + image.unixTimestamp + "/" + user + "/" + views).then(this.handleErrorsJson)
+		.then((e) => {
+			alert("Views granted.");
+		}).catch((e) => {
+			alert("Views could not be granted.");
+			console.log(e);
+		});
 	}
 
 	setScreen = (i) => {
@@ -225,7 +239,7 @@ class App extends Component {
 					{s === 0 && <OtherImages requestImg={this.requestImg} showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
 					{s === 1 && <MyImages showImageView={this.showImageView} loading={this.state.my_images_loading} gallery={this.state.my_images} />}
 					{s === 2 && <DownloadedImages showImageView={this.showImageView} loading={this.state.download_images_loading} gallery={this.state.download_images} />}
-					{s === 3 && <RequestList showImageView={this.showImageView} loading={this.state.req_loading} ongoing={this.state.ongoing_list} requests={this.state.req_list} />}
+					{s === 3 && <RequestList grantViews={this.grantViews} showImageView={this.showImageView} loading={this.state.req_loading} ongoing={this.state.ongoing_list} requests={this.state.req_list} />}
 				</main>
 			</div>
 		);

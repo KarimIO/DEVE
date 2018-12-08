@@ -42,6 +42,7 @@ public:
     virtual std::string getClassName() override { return "Image"; }
     virtual JSON executeRPC(std::string name, JSON arguments) override;
     virtual JSON getID() override { return id; }
+    std::string getThumbnail() { return img_json["thumb"]; }
 
     // Constructors
     Image(std::string title, std::string base64, std::string thumbBase64);

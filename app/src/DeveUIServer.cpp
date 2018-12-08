@@ -188,10 +188,12 @@ void DeveUIServer::setupRoutes() {
 
     Routes::Get(router_, "/checkAuth", Routes::bind(&DeveUIServer::doAuth, this));
     Routes::Get(router_, "/downloaded", Routes::bind(&DeveUIServer::getDownloadedImages, this));
+    Routes::Get(router_, "/requests", Routes::bind(&DeveUIServer::handleRequests, this));
     Routes::Get(router_, "/requestimg/:ownerID/:id/:time", Routes::bind(&DeveUIServer::handleRequestImage, this));
     Routes::Get(router_, "/images/:id", Routes::bind(&DeveUIServer::getUserImages, this));
     Routes::Get(router_, "/image/:ownerID/:id/:time", Routes::bind(&DeveUIServer::getUserImage, this));
     Routes::Get(router_, "/userlist", Routes::bind(&DeveUIServer::getUserList, this));
+    Routes::Get(router_, "/grant/:ownerID/:id/:time/:target/:view", Routes::bind(&DeveUIServer::grantViews, this));
     Routes::Post(router_, "/image", Routes::bind(&DeveUIServer::postImage, this));
     Routes::Post(router_, "/signup", Routes::bind(&DeveUIServer::handleSignUp, this));
     Routes::Post(router_, "/signin", Routes::bind(&DeveUIServer::handleSignIn, this));
@@ -252,9 +254,20 @@ void DeveUIServer::handleRequestImage(const Pistache::Rest::Request& request, Pi
 
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
         
-        try {
+    try {
         requestImage(json);
         response.send(Pistache::Http::Code::Ok, "succ");
+    } catch (const char* err) {
+        response.send(Pistache::Http::Code::Forbidden, err);
+    }
+}
+
+void DeveUIServer::handleRequests(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
+    
+    try {
+        auto out = fetchPendingRequests();
+        response.send(Pistache::Http::Code::Ok, out.dump());
     } catch (const char* err) {
         response.send(Pistache::Http::Code::Forbidden, err);
     }
@@ -268,6 +281,29 @@ void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistach
         std::cout  << "Retrieving image: " << user << "\n";
         auto images = fetchUserImages(user);
         response.send(Pistache::Http::Code::Ok, images.dump());
+    } catch (const char* err) {
+        response.send(Pistache::Http::Code::Forbidden, err);
+    }
+}
+
+void DeveUIServer::grantViews(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
+    auto owner = request.param(":ownerID").as<std::string>();
+    auto id = request.param(":id").as<uint32>();
+    auto time = request.param(":time").as<uint32>();
+    auto target = request.param(":target").as<std::string>();
+    auto views = request.param(":view").as<uint32>();
+    
+    JSON json;
+    json["ownerID"] = owner;
+    json["unixTimestamp"] = time;
+    json["id"] = id;
+    json["class"] = "Image";
+
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
+    
+    try {
+        setImageAccess(json, target, views);
+        response.send(Pistache::Http::Code::Ok, "succ");
     } catch (const char* err) {
         response.send(Pistache::Http::Code::Forbidden, err);
     }
@@ -422,7 +458,7 @@ JSON DeveUIServer::fetchPendingRequests() {
     for (int i = 0; i < Image::requests.size(); i++) {
         auto& front = Image::requests.front();
 
-        requests.push_back({ {"image", front.first->getID() }, {"user", front.second}});
+        requests.push_back({ {"image", front.first->getID() }, {"thumb", front.first->getThumbnail()}, {"user", front.second}});
         Image::requests.pop();
     }
     return requests;

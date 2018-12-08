@@ -9,18 +9,18 @@ export default class RequestList extends Component {
                 <h2>Pending Requests{emptyrequests && <i> (None Found)</i>}</h2>
                 <div className="gallery">
                     {this.props.requests.map((e, i) => {
-                        return <div key={i} style={{backgroundImage: "url(/img/"+e.url+")"}}>
+                        return <div key={i} style={{backgroundImage: "url(data:image/jpeg;base64,"+e.thumb+")"}}>
                             <div>
                                 <span>
                                     <b>{e.user}</b>
                                     <i>{e.views} view{e.views !== 1 && "s"} requested</i>
-									<button>Grant Views</button>
+									<button onClick={(ev) => this.props.grantViews(e.image, e.user)}>Grant Views</button>
                                 </span>
                             </div>
                         </div>;
                     })}
                 </div>
-                <h2>Ongoing Requests{emptyongoing && <i> (None Found)</i>}</h2>
+                {/*<h2>Ongoing Requests{emptyongoing && <i> (None Found)</i>}</h2>
                 <div className="gallery">
                     {this.props.ongoing.map((e, i) => {
                         return <div key={i} style={{backgroundImage: "url(/img/"+e.url+")"}}>
@@ -33,7 +33,7 @@ export default class RequestList extends Component {
                             </div>
                         </div>;
                     })}
-                </div>
+                </div>*/}
 			</section>
 		);
 	}
