@@ -188,6 +188,7 @@ void DeveUIServer::setupRoutes() {
 
     Routes::Get(router_, "/checkAuth", Routes::bind(&DeveUIServer::doAuth, this));
     Routes::Get(router_, "/downloaded", Routes::bind(&DeveUIServer::getDownloadedImages, this));
+    Routes::Get(router_, "/requestimg/:ownerID/:id/:time", Routes::bind(&DeveUIServer::handleRequestImage, this));
     Routes::Get(router_, "/images/:id", Routes::bind(&DeveUIServer::getUserImages, this));
     Routes::Get(router_, "/image/:ownerID/:id/:time", Routes::bind(&DeveUIServer::getUserImage, this));
     Routes::Get(router_, "/userlist", Routes::bind(&DeveUIServer::getUserList, this));
@@ -227,8 +228,6 @@ void DeveUIServer::getUserImage(const Pistache::Rest::Request& request, Pistache
     json["id"] = id;
     json["class"] = "Image";
 
-    std::cout << json.dump() << "\n";
-
     try {
         auto image_b64 = fetchUserImage(json);
         response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
@@ -240,16 +239,36 @@ void DeveUIServer::getUserImage(const Pistache::Rest::Request& request, Pistache
 }
 
 
+void DeveUIServer::handleRequestImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
+    auto owner = request.param(":ownerID").as<std::string>();
+    auto id = request.param(":id").as<uint32>();
+    auto time = request.param(":time").as<uint32>();
+
+    JSON json;
+    json["ownerID"] = owner;
+    json["unixTimestamp"] = time;
+    json["id"] = id;
+    json["class"] = "Image";
+
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
+        
+        try {
+        requestImage(json);
+        response.send(Pistache::Http::Code::Ok, "succ");
+    } catch (const char* err) {
+        response.send(Pistache::Http::Code::Forbidden, err);
+    }
+}
 
 void DeveUIServer::getUserImages(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     auto user = request.param(":id").as<std::string>();
 
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     try {
-    auto images = fetchUserImages(user);
+        std::cout  << "Retrieving image: " << user << "\n";
+        auto images = fetchUserImages(user);
         response.send(Pistache::Http::Code::Ok, images.dump());
     } catch (const char* err) {
-        response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
         response.send(Pistache::Http::Code::Forbidden, err);
     }
 }
@@ -291,13 +310,13 @@ void DeveUIServer::getUserList(const Pistache::Rest::Request& request, Pistache:
 
 void DeveUIServer::handleSignUp(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     auto body = request.body();
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
 
+        
     auto found = body.find(';');
     if (found != std::string::npos) {
         auto user = body.substr(0, found);
         auto pass = body.substr(found + 1, body.size() - found - 1);
-        response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-
         try {
             if (signUp(user, pass)) {
                 response.send(Pistache::Http::Code::Ok, "auth.success");
@@ -318,6 +337,7 @@ void DeveUIServer::handleSignUp(const Pistache::Rest::Request& request, Pistache
 
 void DeveUIServer::handleSignIn(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     auto body = request.body();
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
 
     std::cout << "Sign In\n";
 
@@ -327,8 +347,7 @@ void DeveUIServer::handleSignIn(const Pistache::Rest::Request& request, Pistache
         auto pass = body.substr(found + 1, body.size() - found - 1);
 
         std::cout << user << " " << pass << "\n";
-        response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
-
+       
         try {
             if (signIn(user, pass)) {
                 response.send(Pistache::Http::Code::Ok, "auth.success");

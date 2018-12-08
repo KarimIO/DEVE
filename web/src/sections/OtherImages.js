@@ -11,7 +11,7 @@ export default class MyImages extends Component {
 							<div>
 								<span>
 									{e.views > 0 && <i>{e.views} view{e.views !== 1 && "s"} left</i>}
-									{e.views === 0 && <button>Request</button>}
+									{e.views === 0 && <button onClick={(ev) => this.props.requestImg(e.object)}>Request</button>}
 									{e.views > 0 && <button>Request More</button>}
 								</span>
 							</div>

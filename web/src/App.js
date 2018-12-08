@@ -159,6 +159,7 @@ class App extends Component {
 
 	showImageView = (data) => {
 		let me = this;
+		
 		fetch(this.domain + "image/" + data.ownerID + "/" + data.id + "/" + data.unixTimestamp).then(this.handleErrorsText)
 		.then((e) => {
 			console.log(e);
@@ -167,6 +168,24 @@ class App extends Component {
 		})
 		.catch((e) => {
 			alert(e);
+			console.log(e);
+			//this.setState({other_images_error: true, other_images_loading: false});
+		});
+	}
+
+	
+	requestImg = (data) => {
+		let me = this;
+
+		console.log(data);
+		
+		fetch(this.domain + "requestimg/" + data.ownerID + "/" + data.id + "/" + data.unixTimestamp).then(this.handleErrorsText)
+		.then((e) => {
+			alert("Request succeeded! Please wait for a response.");
+			//this.setState({other_images_error: false, other_images_loading: false, other_images: e});
+		})
+		.catch((e) => {
+			alert("Request failed!");
 			console.log(e);
 			//this.setState({other_images_error: true, other_images_loading: false});
 		});
@@ -203,7 +222,7 @@ class App extends Component {
 						<span className="signout-btn" onClick={this.handleLogOut}>Sign Out</span>
 						<span className="add-btn" onClick={this.showImageUpload}></span>
 					</nav>
-					{s === 0 && <OtherImages showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
+					{s === 0 && <OtherImages requestImg={this.requestImg} showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
 					{s === 1 && <MyImages showImageView={this.showImageView} loading={this.state.my_images_loading} gallery={this.state.my_images} />}
 					{s === 2 && <DownloadedImages showImageView={this.showImageView} loading={this.state.download_images_loading} gallery={this.state.download_images} />}
 					{s === 3 && <RequestList showImageView={this.showImageView} loading={this.state.req_loading} ongoing={this.state.ongoing_list} requests={this.state.req_list} />}
