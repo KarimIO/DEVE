@@ -14,6 +14,14 @@
 
 using namespace Pistache;
 
+static inline Image* getImageObject(JSON id) {
+    Image* ptr = (Image*)RDS.getObject(id);
+    if (ptr == nullptr) {
+        throw "image.doesNotExist";
+    }
+    return ptr;
+}
+
 // Static Helpers
 static void deathRoutine() {
     // Save here
@@ -268,6 +276,7 @@ void DeveUIServer::handleRemoveImage(const Pistache::Rest::Request& request, Pis
         
     try {
         //removeImage(json);
+        getImageObject(json)->destroy(&ra);
         response.send(Pistache::Http::Code::Ok, "succ");
     } catch (const char* err) {
         response.send(Pistache::Http::Code::Forbidden, err);
@@ -467,14 +476,6 @@ JSON DeveUIServer::fetchUserImages(std::string user) {
 
 JSON DeveUIServer::fetchUserImage(JSON id) {
     return Image::getImageData(&ra, id);
-}
-
-static inline Image* getImageObject(JSON id) {
-    Image* ptr = (Image*)RDS.getObject(id);
-    if (ptr == nullptr) {
-        throw "image.doesNotExist";
-    }
-    return ptr;
 }
 
 void DeveUIServer::requestImage(JSON id) {
