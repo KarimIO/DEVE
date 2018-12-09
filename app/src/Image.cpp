@@ -125,12 +125,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
         auto images = RDS.listMine("Image");
         std::for_each(images.begin(), images.end(), [&](RemoteObject* ro){
             auto& image = *(Image*)ro;
-            JSON json;
-            json["object"] = image.getID();
-            json["thumb"] = image.img_json["thumb"];
-            json["title"] = image.img_json["title"];
-            json["views"] = image.img_json["views"];
-            array.push_back(json);
+            array.push_back(image.getMetadata());
         });
     } else {
         auto listRequest = RDS.listRPC("Image", user);
@@ -149,11 +144,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
 
             auto steganogram = base64_decode(reply["result"]);
             auto& image = *imageFromSteganogram(object, steganogram);
-            JSON json;
-            json["object"] = object; //making sure that we at least get the list...
-            json["thumb"] = image.img_json["thumb"];
-            json["title"] = image.img_json["title"];
-            json["views"] = image.img_json["views"];
+            JSON json = image.getMetadata();
 
             JSON access = image.img_json["access"][RDS.getUID()];
             if (access.is_null()) {
@@ -165,6 +156,15 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
         }
     }
     return array;
+}
+
+JSON Image::getMetadata() {
+    JSON json;
+    json["object"] = getID();
+    json["thumb"] = img_json["thumb"];
+    json["title"] = img_json["title"];
+    json["views"] = img_json["views"];
+    return json;
 }
 
 std::string Image::getImageData(RegistrarArbitration* ra, JSON id) {

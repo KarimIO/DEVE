@@ -51,6 +51,7 @@ public:
     // Local per-image helpers
     void setAccess(RegistrarArbitration* ra, std::string targetUser, int views);
     void requestAccess(RegistrarArbitration* ra);
+    JSON getMetadata();
 
     // Static helpers
     static std::queue< std::pair<Image*, std::string> > requests;
