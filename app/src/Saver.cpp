@@ -11,10 +11,10 @@ void Saver::saveImage(std::string thumb64, std::string string64, std::string fil
       dumpIntoFile("saved/"+filename,vec);
 }
 
-void Saver::loadImage(std::string filepath ){
+std::vector<uint8> Saver::loadImage(std::string filepath ){
     auto vec = dumpFile(filepath);
 
-    return vec;
+    //return vec;
 //    std::cout<<vec<<std::endl;
 }
 

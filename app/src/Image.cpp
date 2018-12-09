@@ -117,7 +117,6 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
             json["thumb"] = image.img_json["thumb"];
             json["title"] = image.img_json["title"];
             json["views"] = image.img_json["views"];
-            json["access"] = image.img_json["access"][RDS.getUID()];
             array.push_back(json);
         });
     } else {
@@ -142,6 +141,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
             json["thumb"] = image.img_json["thumb"];
             json["title"] = image.img_json["title"];
             json["views"] = image.img_json["views"];
+            json["access"] = image.img_json["access"][RDS.getUID()];
 
             array.push_back(json);
         }
