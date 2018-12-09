@@ -226,3 +226,36 @@ void Image::requestAccess(RegistrarArbitration* ra) {
 
     RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
 }
+
+void Image::destroyImage(RegistrarArbitration* ra, Image* image) {
+    auto accessRights = image->img_json["access"];
+    auto id = image->id;
+
+    RDS.destroyObject(image->id); // After this point, the Image pointer will NOT be pointing to anything!! Take all the data you need out of it first.
+
+    for (auto iterator: accessRights.items()) {
+        std::thread tr([=](){
+            auto targetUser = iterator.key();
+            auto rmiReqMsg = RDS.rmiReqMsg("Image", targetUser, id, "__setAccess", JSON({
+                    {"viewCount", 0},
+                    {"targetUser", targetUser}
+                })
+            );
+
+            auto ip = ra->getUserIP(targetUser);
+            if (!ip.has_value()) {
+                throw "user.doesNotExist";
+            }
+            
+            RDS.communicateRMI(ip.value(), REQ_PORT, rmiReqMsg);
+        });
+        tr.detach();
+    }
+}
+
+void Image::destroy(RegistrarArbitration* ra) {
+    std::thread tr([=]() {
+        destroyImage(ra, this);
+    });
+    tr.detach();
+}

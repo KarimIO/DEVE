@@ -34,6 +34,8 @@ class Image : public RemoteObject {
     // RPC methods
     void recordView(std::string viewer);
     void addRequest(std::string requester);
+
+    static void destroyImage(RegistrarArbitration* ra, Image* image);
 public:
     void recordAccessChange(std::string targetUser, int views);
     std::vector<uint8> getSteganogram();
@@ -52,6 +54,7 @@ public:
     void setAccess(RegistrarArbitration* ra, std::string targetUser, int views);
     void requestAccess(RegistrarArbitration* ra);
     JSON getMetadata();
+    void destroy(RegistrarArbitration* ra);
 
     // Static helpers
     static std::queue< std::pair<Image*, std::string> > requests;
