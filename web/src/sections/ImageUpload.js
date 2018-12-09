@@ -80,7 +80,7 @@ export default class ImageUpload extends Component {
 						}).catch((e) => {
 							console.log(e);
 							
-							this.setState({processing: false, r_error: true});
+							me.setState({processing: false, r_error: true});
 						});
 					};
 					imageObj.src=b64;
