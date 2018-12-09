@@ -8,12 +8,13 @@
 void Saver::saveImage(std::string thumb64, std::string string64, std::string filename){
       Image test(filename, string64, thumb64);
       auto vec = test.getSteganogram();
-      dumpIntoFile("out/"+filename,vec);
+      dumpIntoFile("saved/"+filename,vec);
 }
 
 void Saver::loadImage(std::string filepath ){
     auto vec = dumpFile(filepath);
 
+    return vec;
 //    std::cout<<vec<<std::endl;
 }
 
