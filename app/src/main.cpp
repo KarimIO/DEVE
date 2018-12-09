@@ -2,6 +2,8 @@
 #include <exception>
 
 #include <signal.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 #include <Dispatcher.h>
 #include <pistache/endpoint.h>
@@ -15,12 +17,24 @@ using namespace Pistache;
 
 RRAD::Dispatcher RRAD::Dispatcher::singleton = RRAD::Dispatcher("__DEVE_INIT", REQ_PORT);
 
+#define USERHOME std::string(getenv("HOME"))
 
 int main(int argc, char *argv[]) {
     // Load here
     if (argc < 2) {
         std::cerr << "ADS address must be provided with invocation." << std::endl;
         exit(64);
+    }
+    
+    // Create deve folder if it doesn't exist
+    if (mkdir(
+            (USERHOME + "/.deve/").c_str(),  // IM SO SORRY
+            S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH
+        ) == -1) {
+        if (errno != EEXIST) {
+            std::cout << "[DEVE] Could not create DEVE folder with error: " << strerror(errno) << "." << std::endl;
+            exit(-1);
+        }
     }
 
     auto adsIP = std::string(argv[1]);

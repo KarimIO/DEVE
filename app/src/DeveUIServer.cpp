@@ -60,6 +60,8 @@ void DeveUIServer::startServers(Pistache::Address addr) {
         .flags(Tcp::Options::InstallSignalHandler)
         .maxPayload(SIZE_MAX);
 
+        
+
     http_endpoint_ = std::shared_ptr<Pistache::Http::Endpoint>(new Http::Endpoint(addr));
     setupRoutes();
     http_endpoint_->init(opts);

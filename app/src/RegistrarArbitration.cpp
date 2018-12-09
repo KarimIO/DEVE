@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <Vectorize.h>
+#include <DumpFile.h>
 
 #include <picosha2.h>
 #include <base64.h>
@@ -12,6 +13,8 @@
 #define RDS RRAD::Dispatcher::singleton
 #define __com(x) RDS.communicateRMI(adsIP, ADS_PORT, x)
 
+#define USERHOME std::string(getenv("HOME"))
+
 RegistrarArbitration::RegistrarArbitration(std::string ip) {
     adsIP = ip;
     
@@ -19,8 +22,24 @@ RegistrarArbitration::RegistrarArbitration(std::string ip) {
     auto reply = RDS.communicateRMI(adsIP, ADS_PORT,request);
     registrarID = reply["result"][0];
 
-    publicKey.resize(crypto_sign_PUBLICKEYBYTES);
-    privateKey.resize(crypto_sign_SECRETKEYBYTES);
+    try {
+        auto vector = dumpFile(USERHOME + "/.deve/userData.json");
+        auto string = RRAD::devectorizeToString(vector);
+        auto json = JSON::parse(string);
+
+        auto pubKeyString = json["publicKey"];
+        auto secKeyString = json["secretKey"];
+
+        publicKey  = base64_decode(pubKeyString);
+        privateKey = base64_decode(secKeyString);
+
+    } catch (const char *e) {
+        std::cout << "[DEVE] No user file found, user is advised to sign up." << std::endl;
+
+        publicKey.resize(crypto_sign_PUBLICKEYBYTES);
+        privateKey.resize(crypto_sign_SECRETKEYBYTES);
+    }
+
 }
 
 void RegistrarArbitration::encodeArguments(JSON* ptr) {
@@ -91,7 +110,9 @@ bool RegistrarArbitration::reg(std::string password) {
     crypto_sign_keypair(&publicKey[0], &privateKey[0]);
     RDS.cm = this;
 
-    std::string pubKeyString = base64_encode(&publicKey[0], crypto_sign_PUBLICKEYBYTES);
+    std::string pubKeyString = base64_encode(&publicKey[0],  crypto_sign_PUBLICKEYBYTES);
+    std::string secKeyString = base64_encode(&privateKey[0], crypto_sign_SECRETKEYBYTES);
+
     auto request = RDS.rmiReqMsg("Registrar", ADS_USERNAME, registrarID, "register",
         {
             {"password", password},
@@ -99,6 +120,18 @@ bool RegistrarArbitration::reg(std::string password) {
         }
     );
     auto reply = __com(request);
+    if (reply["result"]) {
+        JSON json;
+        json["userName"] = RDS.getUID();
+        json["publicKey"] = pubKeyString;
+        json["privateKey"] = secKeyString;
+
+        auto string = json.dump();
+        auto userHome = std::string(getenv("HOME"));
+        dumpIntoFile(userHome + "/.deve/userData.json", RRAD::vectorize(string));
+    } else {
+        std::cerr << "[DEVE] Signup failed!" << std::endl;
+    }
     return reply["result"];
 }
 
