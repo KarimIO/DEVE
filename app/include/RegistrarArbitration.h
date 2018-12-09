@@ -18,6 +18,7 @@ public:
     std::map<std::string, User> localRegistry;
     std::vector<uint8> publicKey;
     std::vector<uint8> privateKey;
+    bool authenticated = false;
 
     RegistrarArbitration(std::string adsIP);
     bool reg(std::string password);

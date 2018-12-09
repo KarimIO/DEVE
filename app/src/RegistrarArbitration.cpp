@@ -27,8 +27,9 @@ RegistrarArbitration::RegistrarArbitration(std::string ip) {
         auto string = RRAD::devectorizeToString(vector);
         auto json = JSON::parse(string);
 
+        RDS.setUID(json["userName"]);
         auto pubKeyString = json["publicKey"];
-        auto secKeyString = json["secretKey"];
+        auto secKeyString = json["privateKey"];
 
         publicKey  = base64_decode(pubKeyString);
         privateKey = base64_decode(secKeyString);
@@ -178,7 +179,10 @@ bool RegistrarArbitration::authenticate(std::string password) {
     );
     auto reply = __com(request);
 
-    updateUserList();
+    if (reply["result"]) {
+        updateUserList();
+        authenticated = true;
+    }
 
     return reply["result"];
 }

@@ -21,7 +21,7 @@ export default class Credentials extends Component {
 		fetch(this.props.domain + "checkAuth")
 		.then(this.handleErrors)
 		.then((e) => {
-			if (e !== "__DEVE_INIT") {
+			if (e !== "__DEVE_INIT" && e !== "") {
 				this.props.setUserInfo({
 					username: e
 				});
@@ -143,7 +143,7 @@ export default class Credentials extends Component {
 								<div className="tagline">Have an account? <span onClick={() => this.setSignState(true)}>Sign In</span></div>
 								<Input label="Username" placeholder="Username" value={this.state.r_username} onChange={this.handleSignUpUsername} type="text" />
 								<Password label="Password" placeholder="Password" value={this.state.r_password} onChange={this.handleSignUpPassword} type="password" />
-								<input type="submit" value="Sign In" />
+								<input type="submit" value="Sign Up" />
 							</form>
 						</div>
 						<div className={`credentials-container${this.state.show_register ? "" : " hide"}`}>

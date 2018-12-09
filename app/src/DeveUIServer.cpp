@@ -204,7 +204,11 @@ void DeveUIServer::setupRoutes() {
 void DeveUIServer::doAuth(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     try {
+        
         auto id = RDS.getUID();
+        if (!ra.authenticated) {
+            id = "";
+        }
         response.send(Pistache::Http::Code::Ok, id);
     } catch (const char* err) {
         response.send(Pistache::Http::Code::Forbidden, err);
