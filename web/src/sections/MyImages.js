@@ -12,7 +12,7 @@ export default class MyImages extends Component {
 								<span>
 									<i>{e.views}</i> view{e.views !== 1 && "s"}
 									<button onClick={(event) => this.props.showImageView(e.object)}>Show</button>
-									<button onClick={(e) => alert(i)} className="remove">Remove</button>
+									<button onClick={(event) => this.props.removeImage(e.object)} className="remove">Remove</button>
 								</span>
 							</div>
 						</div>;

@@ -197,6 +197,20 @@ class App extends Component {
 		this.credentials.logOut();
 	}
 
+	removeImage = (data) => {
+		let me = this;
+		
+		fetch(this.domain + "removeimg/" + data.ownerID + "/" + data.id + "/" + data.unixTimestamp).then(this.handleErrorsText)
+		.then((e) => {
+			alert("Image successfully deleted");
+			console.log(e);
+		})
+		.catch((e) => {
+			alert("Could not delete image: " + e);
+			console.log(e);
+		});
+	}
+
 	showImageView = (data) => {
 		let me = this;
 		
@@ -263,7 +277,7 @@ class App extends Component {
 						<span className="add-btn" onClick={this.showImageUpload}></span>
 					</nav>
 					{s === 0 && <OtherImages error={this.state.other_images_error} requestImg={this.requestImg} showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
-					{s === 1 && <MyImages showImageView={this.showImageView} loading={this.state.my_images_loading} gallery={this.state.my_images} />}
+					{s === 1 && <MyImages removeImage={this.removeImage} showImageView={this.showImageView} loading={this.state.my_images_loading} gallery={this.state.my_images} />}
 					{s === 2 && <DownloadedImages showImageView={this.showImageView} loading={this.state.download_images_loading} gallery={this.state.download_images} />}
 					{s === 3 && <RequestList grantViews={this.grantViews} showImageView={this.showImageView} loading={this.state.req_loading} ongoing={this.state.ongoing_list} requests={this.state.req_list} />}
 				</main>
