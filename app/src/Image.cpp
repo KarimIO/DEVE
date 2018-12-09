@@ -7,6 +7,8 @@
 #define RDS RRAD::Dispatcher::singleton
 
 std::queue< std::pair<Image*, std::string> > Image::requests = std::queue< std::pair<Image*, std::string> >();
+std::map<std::string, Image*> Image::pseudoDownloaded = std::map<std::string, Image*>();
+std::mutex Image::psuedoDownloadedMutex;
 
 static auto defaultJSON = R"(
 {
@@ -53,6 +55,17 @@ Image::Image(JSON id, bool owned, JSON img_json) {
 }
 
 void Image::recordAccessChange(std::string targetUser, int view_cnt) {
+    auto idStr = id.dump();
+    std::lock_guard lg(psuedoDownloadedMutex);
+    if (targetUser == RDS.getUID()) {
+        if (view_cnt <= 0) {
+            if (pseudoDownloaded.find(idStr) != pseudoDownloaded.end()) {
+                pseudoDownloaded.erase(idStr);
+            }
+        } else if (view_cnt > 0) {
+            pseudoDownloaded[idStr] = this;
+        }
+    }
     img_json["access"][targetUser] = view_cnt;
 }
 

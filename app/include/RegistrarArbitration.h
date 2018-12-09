@@ -14,12 +14,11 @@ struct User {
 class RegistrarArbitration: public RRAD::CryptoModule {
     std::string adsIP;
     JSON registrarID;
-public: // temp
+public:
     std::map<std::string, User> localRegistry;
     std::vector<uint8> publicKey;
     std::vector<uint8> privateKey;
 
-public:
     RegistrarArbitration(std::string adsIP);
     bool reg(std::string password);
     bool authenticate(std::string password);

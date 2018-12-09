@@ -55,6 +55,9 @@ public:
     // Static helpers
     static std::queue< std::pair<Image*, std::string> > requests;
 
+    static std::mutex psuedoDownloadedMutex;
+    static std::map<std::string, Image*> pseudoDownloaded;
+
     static Image* imageFromSteganogram(JSON id, std::vector<uint8> steganogram);
     static JPEG generateSteganogramJPEG();
 
