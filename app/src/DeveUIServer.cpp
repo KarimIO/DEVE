@@ -354,6 +354,7 @@ void DeveUIServer::grantViews(const Pistache::Rest::Request& request, Pistache::
 void DeveUIServer::postImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     auto body = request.body();
 
+    response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
     auto found = body.find(';');
     try {
         if (found != std::string::npos) {
@@ -368,7 +369,6 @@ void DeveUIServer::postImage(const Pistache::Rest::Request& request, Pistache::H
             throw "imageUpload.invalidSyntax";
         }
     } catch (const char* err) {
-        response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
         response.send(Pistache::Http::Code::Forbidden, err);
     }
 }

@@ -204,6 +204,7 @@ class App extends Component {
 		.then((e) => {
 			alert("Image successfully deleted");
 			console.log(e);
+			me.fetchMyImages();
 		})
 		.catch((e) => {
 			alert("Could not delete image: " + e);

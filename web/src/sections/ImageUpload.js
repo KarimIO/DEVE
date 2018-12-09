@@ -1,15 +1,6 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 
-var handleErrors = (response) => {
-	return new Promise((resolve, reject) => {
-		// will resolve or reject depending on status, will pass both "status" and "data" in either case
-		let func;
-		response.status < 400 ? func = resolve : func = reject;
-		response.text().then(data => func(data));
-	});
-}
-
 export default class ImageUpload extends Component {
 	constructor(props) {
 		super(props);
@@ -17,6 +8,15 @@ export default class ImageUpload extends Component {
 		this.state = {
 			files: []
 		}
+	}
+
+	handleErrors = (response) => {
+		return new Promise((resolve, reject) => {
+			// will resolve or reject depending on status, will pass both "status" and "data" in either case
+			let func;
+			response.status < 400 ? func = resolve : func = reject;
+			response.text().then(data => func(data));
+		});
 	}
 
 	consume = (stream, total = 0) => {
@@ -63,6 +63,7 @@ export default class ImageUpload extends Component {
 						var sourceX = 0;
 						var sourceY = 0;
 				
+						context.clearRect(0, 0, canvas.width, canvas.height);
 						context.drawImage(imageObj, sourceX, sourceY, m, m, 0, 0, canvas.width, canvas.height);
 						let dataUrl = canvas.toDataURL('image/jpeg');
 						
@@ -78,12 +79,10 @@ export default class ImageUpload extends Component {
 							method: "POST",
 							body: payload
 						})
-						.then(handleErrors)
+						.then(me.handleErrors)
 						.then((e) => {
 							console.log(e);
-							me.setState({processing: false, r_error: false, files: []});
-							me.props.fetchMyImages();
-							me.props.hideImageUpload();
+							me.setState({processing: false, r_error: false});
 						}).catch((e) => {
 							console.log(e);
 							
@@ -129,11 +128,18 @@ export default class ImageUpload extends Component {
 		});
 	}
 
+	hideImageUpload = (e) => {
+		e.preventDefault();
+		this.setState({files: []})
+		this.props.fetchMyImages();
+		this.props.hideImageUpload();
+	}
+
 	render() {
 		return (
 			<div className={`image-upload${this.props.shown ? "" : " hide"}`}>
 				<canvas id="myCanvas"></canvas>
-				<div className="close" onClick={this.props.hideImageUpload}></div>
+				<div className="close" onClick={this.hideImageUpload}></div>
 				<Dropzone className="uploadfield" onDrop={this.handleDrop}>
 					{this.state.files.length === 0 && <div id="middle">Drag and Drop files here, or click the area, to upload.</div>}
 					{this.state.files.length > 0 &&
