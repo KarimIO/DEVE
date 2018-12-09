@@ -27,7 +27,6 @@ int main(int argc, char *argv[]) {
     }
     
     // Create deve folder if it doesn't exist
-    std::cout << USERHOME << " FDIDISAFIOJKAL<FKASLFK" << std::endl;
     if (mkdir(
             (USERHOME + "/.deve/").c_str(),  // IM SO SORRY
             S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH
