@@ -123,15 +123,24 @@ nav {
     overflow-y: auto;
     position: relative;
 
-    &:not(.loading).empty::after {
-        content: "No Content Found";
-        color: #bbb;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 2rem;
-        text-align: center;
+    &:not(.loading) {
+        &.empty::after, &.usererror::after {
+            color: #bbb;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        &.empty::after {
+            content: "No Content Found";
+        }
+
+        &.usererror::after {
+            content: "Could not find user";
+        }
     }
 
     &::before {

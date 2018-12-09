@@ -41,19 +41,24 @@ class App extends Component {
 			full_img: ""
 		}
 	}
-
+	
 	handleErrorsJson = (response) => {
-		if (!response.ok) {
-			throw Error(response.statusText);
-		}
-		return response.json();
+		return new Promise((resolve, reject) => {
+			// will resolve or reject depending on status, will pass both "status" and "data" in either case
+			let func;
+			response.status < 400 ? func = resolve : func = reject;
+			response.json().then(data => func(data));
+		});
 	}
+	
 
 	handleErrorsText = (response) => {
-		if (!response.ok) {
-			throw Error(response.statusText);
-		}
-		return response.text();
+		return new Promise((resolve, reject) => {
+			// will resolve or reject depending on status, will pass both "status" and "data" in either case
+			let func;
+			response.status < 400 ? func = resolve : func = reject;
+			response.text().then(data => func(data));
+		});
 	}
 
 	domain = "http://localhost:22000/";
@@ -77,7 +82,7 @@ class App extends Component {
 		.then((e) => {
 			me.setState({other_images_error: false, other_images_loading: false, other_images: e});
 		}).catch((e) => {
-			alert(e);
+			//alert(e);
 			console.log(e);
 			me.setState({other_images_error: true, other_images_loading: false});
 		});
@@ -88,6 +93,7 @@ class App extends Component {
 		
 		fetch(this.domain + "/downloaded").then(this.handleErrorsJson)
 		.then((e) => {
+			if (e === null) e = [];
 			me.setState({downloaded_images_error: false, download_images_loading: false, download_images: e});
 		}).catch((e) => {
 			alert(e);
@@ -256,7 +262,7 @@ class App extends Component {
 						{/*<span className="signout-btn" onClick={this.handleLogOut}>Sign Out</span>*/}
 						<span className="add-btn" onClick={this.showImageUpload}></span>
 					</nav>
-					{s === 0 && <OtherImages requestImg={this.requestImg} showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
+					{s === 0 && <OtherImages error={this.state.other_images_error} requestImg={this.requestImg} showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
 					{s === 1 && <MyImages showImageView={this.showImageView} loading={this.state.my_images_loading} gallery={this.state.my_images} />}
 					{s === 2 && <DownloadedImages showImageView={this.showImageView} loading={this.state.download_images_loading} gallery={this.state.download_images} />}
 					{s === 3 && <RequestList grantViews={this.grantViews} showImageView={this.showImageView} loading={this.state.req_loading} ongoing={this.state.ongoing_list} requests={this.state.req_list} />}

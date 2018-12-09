@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 
+var handleErrors = (response) => {
+	return new Promise((resolve, reject) => {
+		// will resolve or reject depending on status, will pass both "status" and "data" in either case
+		let func;
+		response.status < 400 ? func = resolve : func = reject;
+		response.text().then(data => func(data));
+	});
+}
+
 export default class ImageUpload extends Component {
 	constructor(props) {
 		super(props);
@@ -69,15 +78,10 @@ export default class ImageUpload extends Component {
 							method: "POST",
 							body: payload
 						})
-						.then((e) => {
-							if (e.status >= 300)
-								throw "Invalid";
-				
-							return e.text();
-						})
+						.then(handleErrors)
 						.then((e) => {
 							console.log(e);
-							me.setState({processing: false, r_error: true, files: []});
+							me.setState({processing: false, r_error: false, files: []});
 							me.props.fetchMyImages();
 							me.props.hideImageUpload();
 						}).catch((e) => {

@@ -9,10 +9,12 @@ export default class Credentials extends Component {
 	}
 
 	handleErrors = (response) => {
-		if (!response.ok) {
-			throw Error(response.text());
-		}
-		return response.text();
+		return new Promise((resolve, reject) => {
+			// will resolve or reject depending on status, will pass both "status" and "data" in either case
+			let func;
+			response.status < 400 ? func = resolve : func = reject;
+			response.text().then(data => func(data));
+		});
 	}
 
 	componentWillMount() {
@@ -28,7 +30,7 @@ export default class Credentials extends Component {
 				this.hide();
 			}
 		}).catch((e) => {
-			alert(e);
+			alert("Could not verify signed state:" + e);
 			console.log(e);
 		});
 	}
@@ -86,7 +88,7 @@ export default class Credentials extends Component {
 			});
 			this.hide();
 		}).catch((e) => {
-			alert(e);
+			alert("Could not sign in:" + e);
 			console.log(e);
 			
 			this.setState({processing: false, r_error: true});
@@ -120,8 +122,8 @@ export default class Credentials extends Component {
 			});
 			me.hide();
 		}).catch((e) => {
-			console.log(e);
-			alert(e);
+			console.log("Could not sign up:", e);
+			alert("Could not sign up:" + e);
 			
 			me.setState({processing: false, r_error: true});
 		});

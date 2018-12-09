@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-export default class MyImages extends Component {
+export default class DownloadedImages extends Component {
 	render() {
 		let empty = this.props.gallery.length === 0;
 		return (

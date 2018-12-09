@@ -111,8 +111,7 @@ nav span:hover .notification, nav span.selected .notification {
   position: relative;
 }
 
-.main-section:not(.loading).empty::after {
-  content: "No Content Found";
+.main-section:not(.loading).empty::after, .main-section:not(.loading).usererror::after {
   color: #bbb;
   position: absolute;
   left: 50%;
@@ -121,6 +120,14 @@ nav span:hover .notification, nav span.selected .notification {
           transform: translate(-50%, -50%);
   font-size: 2rem;
   text-align: center;
+}
+
+.main-section:not(.loading).empty::after {
+  content: "No Content Found";
+}
+
+.main-section:not(.loading).usererror::after {
+  content: "Could not find user";
 }
 
 .main-section::before {

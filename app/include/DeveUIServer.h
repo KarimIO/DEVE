@@ -28,6 +28,8 @@ class DeveUIServer {
     void handleRequestImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void handleRequests(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void grantViews(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
+    void handleRemoveImage(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
+    
     std::shared_ptr<Pistache::Http::Endpoint> http_endpoint_ = NULL;
     Pistache::Rest::Router router_;
 

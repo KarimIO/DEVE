@@ -4,7 +4,7 @@ export default class MyImages extends Component {
 	render() {
 		let empty = this.props.gallery.length === 0;
 		return (
-			<section className={`main-section${this.props.loading ? " loading" : ""}${empty ? " empty":""}`}>
+			<section className={`main-section${this.props.loading ? " loading" : ""}${empty ? " empty":""}${this.props.error ? " usererror" : ""}`}>
 				<div className="gallery">
 					{this.props.gallery.map((e, i) => {
 						return <div key={i} style={{backgroundImage: "url(data:image/jpeg;base64,"+e.thumb+")"}}>
