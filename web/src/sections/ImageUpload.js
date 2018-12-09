@@ -77,6 +77,9 @@ export default class ImageUpload extends Component {
 						})
 						.then((e) => {
 							console.log(e);
+							me.setState({processing: false, r_error: true, files: []});
+							me.props.fetchMyImages();
+							me.props.hideImageUpload();
 						}).catch((e) => {
 							console.log(e);
 							

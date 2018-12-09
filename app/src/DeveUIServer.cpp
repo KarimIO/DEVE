@@ -213,7 +213,13 @@ void DeveUIServer::getDownloadedImages(const Pistache::Rest::Request& request, P
     response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
 
     try {
-        response.send(Pistache::Http::Code::Ok, "DEVE Downloaded Images Reached.");
+        JSON ret;
+        std::lock_guard lg(Image::psuedoDownloadedMutex);
+        for (auto& d : Image::pseudoDownloaded) {
+            ret.push_back(d.second->getMetadata());
+        }
+
+        response.send(Pistache::Http::Code::Ok, ret.dump());
     } catch (const char* err) {
         response.send(Pistache::Http::Code::Forbidden, err);
     }

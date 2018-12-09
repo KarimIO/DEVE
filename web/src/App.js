@@ -9,6 +9,11 @@ import ImageView from "./sections/ImageView.js"
 import ImageUpload from "./sections/ImageUpload.js"
 import "./css/main.css"
 
+var interval_delay = 10000;
+var page_refresh_interval;
+var user_refresh_interval;
+var request_refresh_interval;
+
 class App extends Component {
 	constructor(props) {
 		super(props);
@@ -81,7 +86,7 @@ class App extends Component {
 	fetchDownloadedImages = () => {
 		let me = this;
 		
-		fetch("/server/downloaded.json").then(this.handleErrorsJson)
+		fetch(this.domain + "/downloaded").then(this.handleErrorsJson)
 		.then((e) => {
 			me.setState({downloaded_images_error: false, download_images_loading: false, download_images: e});
 		}).catch((e) => {
@@ -120,13 +125,13 @@ class App extends Component {
 	setUser = (u) => {
 		if (this.state.seluser !== u) {
 			// If we're looking at a different user's images, display them.
-			this.setState({selscreen: 0, seluser: u});
-			this.setState({other_images_loading: true});
+			this.setState({seluser: u, other_images_loading: true});
+			this.setScreen(0);
 			this.fetchOtherImages(u);
 		}
 		else {
 			// If not just load the correct subscreen
-			this.setState({selscreen: 0});
+			this.setScreen(0);
 		}
 	}
 
@@ -135,7 +140,7 @@ class App extends Component {
 
 		var views = prompt("How many views would you like to grant?", 0);
 
-		fetch(this.domain + "grant/" + image.ownerID + "/" + image.id + "/" + image.unixTimestamp + "/" + user + "/" + views).then(this.handleErrorsJson)
+		fetch(this.domain + "grant/" + image.ownerID + "/" + image.id + "/" + image.unixTimestamp + "/" + user + "/" + views).then(this.handleErrorsText)
 		.then((e) => {
 			alert("Views granted.");
 		}).catch((e) => {
@@ -145,6 +150,19 @@ class App extends Component {
 	}
 
 	setScreen = (i) => {
+		clearInterval(page_refresh_interval);
+		if (i === 0) {
+			page_refresh_interval = setInterval(this.fetchOtherImages, interval_delay);
+			this.fetchOtherImages();
+		}
+		else if  (i === 1) {
+			page_refresh_interval = setInterval(this.fetchMyImages, interval_delay);
+			this.fetchMyImages();
+		}
+		else if (i === 2) {
+			page_refresh_interval = setInterval(this.fetchDownloadedImages, interval_delay);
+			this.fetchDownloadedImages();
+		}
 		this.setState({selscreen: i});
 	}
 
@@ -161,9 +179,11 @@ class App extends Component {
 			console.log("Error:", e);
 		});*/
 
+		page_refresh_interval = setInterval(this.fetchMyImages, interval_delay);
 		this.fetchMyImages();
-		//this.fetchDownloadedImages();
+		user_refresh_interval = setInterval(this.fetchUserList, interval_delay);
 		this.fetchUserList();
+		request_refresh_interval = setInterval(this.fetchRequests, interval_delay);
 		this.fetchRequests();
 	}
 
@@ -226,19 +246,19 @@ class App extends Component {
 			<div className="App">
 				<FriendsBar name={this.state.user.username} sel={this.state.selscreen === 0 ? this.state.seluser : ""} setUser={this.setUser} loading={this.state.user_list_loading} list={this.state.user_list} />
 				<Credentials ref={instance => { this.credentials = instance; }} domain={this.domain} setUserInfo={this.setUserInfo} />
-				<ImageUpload shown={this.state.show_upload} hideImageUpload={this.hideImageUpload} domain={this.domain} />
+				<ImageUpload shown={this.state.show_upload} fetchMyImages={this.fetchMyImages} hideImageUpload={this.hideImageUpload} domain={this.domain} />
 				<ImageView image={this.state.full_img} shown={this.state.show_full_img} hideImageView={this.hideImageView} />
 				<main>
 					<nav>
 						<span className={s === 1 ? "selected" : ""} onClick={() => this.setScreen(1)}>My Images</span>
-						{/*<span className={s === 2 ? "selected" : ""} onClick={() => this.setScreen(2)}>Downloaded Images</span>*/}
+						<span className={s === 2 ? "selected" : ""} onClick={() => this.setScreen(2)}>Downloaded Images</span>
 						<span className={`${has_notifications ? "request-tab" : ""}${s === 3 ? " selected" : ""}`} onClick={() => this.setScreen(3)}>Requests {has_notifications && <div className="notification">{notification_count}</div>}</span>
-						<span className="signout-btn" onClick={this.handleLogOut}>Sign Out</span>
+						{/*<span className="signout-btn" onClick={this.handleLogOut}>Sign Out</span>*/}
 						<span className="add-btn" onClick={this.showImageUpload}></span>
 					</nav>
 					{s === 0 && <OtherImages requestImg={this.requestImg} showImageView={this.showImageView} loading={this.state.other_images_loading} gallery={this.state.other_images} />}
 					{s === 1 && <MyImages showImageView={this.showImageView} loading={this.state.my_images_loading} gallery={this.state.my_images} />}
-					{/*s === 2 && <DownloadedImages showImageView={this.showImageView} loading={this.state.download_images_loading} gallery={this.state.download_images} />*/}
+					{s === 2 && <DownloadedImages showImageView={this.showImageView} loading={this.state.download_images_loading} gallery={this.state.download_images} />}
 					{s === 3 && <RequestList grantViews={this.grantViews} showImageView={this.showImageView} loading={this.state.req_loading} ongoing={this.state.ongoing_list} requests={this.state.req_list} />}
 				</main>
 			</div>

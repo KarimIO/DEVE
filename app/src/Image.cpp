@@ -146,11 +146,7 @@ JSON Image::getList(RegistrarArbitration* ra, std::string user) {
             auto& image = *imageFromSteganogram(object, steganogram);
             JSON json = image.getMetadata();
 
-            JSON access = image.img_json["access"][RDS.getUID()];
-            if (access.is_null()) {
-                access = 0;
-            }
-            json["access"] = access;
+            
 
             array.push_back(json);
         }
@@ -164,6 +160,15 @@ JSON Image::getMetadata() {
     json["thumb"] = img_json["thumb"];
     json["title"] = img_json["title"];
     json["views"] = img_json["views"];
+
+    if (id["ownerID"] != RDS.getUID()) {
+        JSON access = img_json["access"][RDS.getUID()];
+        if (access.is_null()) {
+            access = 0;
+        }
+        json["access"] = access;
+    }
+
     return json;
 }
 
