@@ -27,7 +27,24 @@ int main(int argc, char *argv[]) {
     }
     
     // Create deve folder if it doesn't exist
-    std::cout << USERHOME << " FDIDISAFIOJKAL<FKASLFK" << std::endl;
+    if (mkdir(
+            (USERHOME + "/.deve/").c_str(),  // IM SO SORRY
+            S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH
+        ) == -1) {
+        if (errno != EEXIST) {
+            std::cout << "[DEVE] Could not create DEVE folder with error: " << strerror(errno) << "." << std::endl;
+            exit(-1);
+        }
+    }
+    if (mkdir(
+        (USERHOME + "/.deve/downloaded/").c_str(),  // IM SO SORRY
+        S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH
+    ) == -1) {
+    if (errno != EEXIST) {
+        std::cout << "[DEVE] Could not create DEVE folder with error: " << strerror(errno) << "." << std::endl;
+        exit(-1);
+    }
+    }
     if (mkdir(
             (USERHOME + "/.deve/owned/").c_str(),  // IM SO SORRY
             S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH
