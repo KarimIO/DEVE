@@ -12,9 +12,10 @@
 class Saver {
   public:  
     void saveImage(std::string thumb64,std::string string64,std::string filename);
-    std::vector<uint8> loadImage(std::string filepath);
+    std::vector<uint8> loadDownloadedImage(std::string filepath);
+    std::vector<uint8> loadOwnImage(std::string filepath);
 
-    void saveJSON(JSON t);
+    void saveJSON(std::string filename,std::vector<uint8> privateKey,int remViews,std::string userID);
     void loadJSON();
 };
 
